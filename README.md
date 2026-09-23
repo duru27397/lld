@@ -91,25 +91,45 @@ Built with a 3-level hierarchical navigation tree (Category $\to$ Subcategory $\
 - **Thread Pool Pattern**: `concurrent.futures.ThreadPoolExecutor` for asynchronous batch execution.
 - **Reader-Writer Lock**: Writer-preferring lock ensuring high read throughput while avoiding writer starvation.
 
-### 7. 💻 Real-World Machine Coding Systems
+### 7. 💻 Real-World Machine Coding Systems (All 33 Practical Systems)
 Complete end-to-end Python 3 implementations with system requirements, local UML diagrams, key classes rationale, and runnable multi-file code:
-- **Foundational Systems**:
+- **Foundational & Utility Systems (8 Systems)**:
   - **Parking Lot System**: Multi-level lot, multi-vehicle types, spot allocation strategies, dynamic ticketing.
   - **LRU Cache**: $O(1)$ get/put, Doubly-Linked List + Hash Map, thread-safe with `RLock`.
   - **Elevator System**: SCAN / LOOK dispatch algorithm, car states, hall calls, concurrent controllers.
   - **Splitwise**: Equal, Exact, and Percent splits, user balance sheets, debt simplification graph algorithm.
-- **High-Frequency Systems**:
   - **Vending Machine**: State pattern finite state machine, inventory slots, coin/note validation, change return.
+  - **Coffee Vending Machine**: Ingredient inventory, drink recipes, condiment decorators.
   - **Pub-Sub Message Broker**: Topics, publishers, subscribers, thread-safe asynchronous dispatch.
+  - **Logging Framework**: Log levels, composite appenders (Console, File), formatting, async buffer.
+- **Mobility, Booking & Delivery (8 Systems)**:
   - **Ride-Sharing (Uber/Lyft)**: Rider/driver matching, pricing strategies, trip lifecycle state machine.
   - **Movie Ticket Booking (BookMyShow)**: Cinema screens, seat categorization, concurrent reservation locking.
-- **Specialized Systems**:
-  - **ATM Banking System**: State pattern hardware workflow, Chain of Responsibility cash dispenser.
-  - **Logging Framework**: Log levels, composite appenders (Console, File), formatting, async buffer.
+  - **Concert Ticket Booking**: High-concurrency seat reservation, tiered pricing, timeout invalidation.
+  - **Hotel Management**: Room inventory management, booking state machine, housekeeping workflow.
+  - **Car Rental System**: Vehicle fleet tracking, reservation strategy, billing & late return policy.
+  - **Airline Management System**: Flight scheduling, seat map matrix, passenger manifest & boarding.
+  - **Food Delivery (DoorDash/Swiggy)**: Multi-party ordering, delivery partner assignment, real-time tracking.
+  - **Restaurant Management**: Table reservation strategy, kitchen order tickets (KOT), menu inventory.
+- **Gaming & Board Systems (5 Systems)**:
+  - **Chess Game Engine**: Polymorphic move validation, turn-based state machine, board representation.
+  - **Tic-Tac-Toe Game**: Grid matrix representation, win condition checkers, player turn alternation.
+  - **Snake and Ladder Game**: Board entity modeling, dice rolling strategy, player movement state.
+  - **Cricinfo Live Cricket Scoring**: Ball-by-ball logging, inning state machine, score update observers.
   - **Traffic Signal Control**: Intersection road modeling, state timers, emergency vehicle override.
-  - **Food Delivery (DoorDash)**: Multi-party ordering, delivery partner assignment, real-time tracking.
+- **FinTech & Enterprise Platforms (12 Systems)**:
+  - **ATM Banking System**: State pattern hardware workflow, Chain of Responsibility cash dispenser.
+  - **Digital Wallet Service (PayTM/PayPal)**: Double-entry bookkeeping, atomic fund transfers, payment methods.
+  - **Online Shopping Service (Amazon)**: Shopping cart state, inventory reservation lock, checkout workflow.
+  - **Online Stock Brokerage (Zerodha)**: Order book matching (FIFO), limit & market orders, portfolio positions.
+  - **Online Auction System (eBay)**: Observer pattern bid notifications, auction timer state machine.
   - **Task Management (Jira)**: Projects, sprints, assignees, state workflows, audit history.
   - **Stack Overflow**: Questions, answers, comments, tags, voting, and reputation calculations.
+  - **Course Registration System**: Prerequisite validation graph, capacity bounding, waitlist queue.
+  - **Library Management System**: Book lending state machine, fine calculation strategy, barcode indexing.
+  - **LinkedIn Professional Network**: Connection graph modeling, job posting & application, feed recommendation.
+  - **Social Networking Service (Facebook)**: Bidirectional friendship graph, post & comment tree, notifications.
+  - **Music Streaming Service (Spotify)**: Audio stream buffer, playlist iterator, recommendation engine.
 
 ---
 

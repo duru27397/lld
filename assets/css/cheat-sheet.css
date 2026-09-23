@@ -2275,3 +2275,65 @@ h1 {
   color: var(--cyan);
   border: 1px solid rgba(45, 212, 191, 0.25);
 }
+
+.problem-stmt-box {
+  margin: 0.85rem 0;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 161, 22, 0.05);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 6px 6px 0;
+}
+
+.problem-stmt-box strong {
+  display: block;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--orange);
+  margin-bottom: 0.35rem;
+}
+
+.problem-stmt-box p {
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.core-components-box {
+  margin: 0.85rem 0;
+  padding: 0.85rem 1rem;
+  background: rgba(45, 212, 191, 0.05);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 6px 6px 0;
+}
+
+.core-components-box strong {
+  display: block;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cyan);
+  margin-bottom: 0.35rem;
+}
+
+.components-list {
+  padding-left: 1.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.components-list li {
+  margin-bottom: 0.25rem;
+}
+
+.components-list code {
+  color: var(--orange);
+  background: rgba(255, 161, 22, 0.1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.84rem;
+}
+

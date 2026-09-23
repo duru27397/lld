@@ -45,18 +45,19 @@
     "lru": "problems-foundational-sub",
     "elevator": "problems-foundational-sub",
     "splitwise": "problems-foundational-sub",
-    "hifreq": "problems-hifreq-sub",
-    "vending": "problems-hifreq-sub",
-    "pubsub": "problems-hifreq-sub",
-    "uber": "problems-hifreq-sub",
-    "movies": "problems-hifreq-sub",
-    "advanced": "problems-advanced-sub",
-    "atm": "problems-advanced-sub",
-    "logging": "problems-advanced-sub",
-    "traffic": "problems-advanced-sub",
-    "food": "problems-advanced-sub",
-    "tasks": "problems-advanced-sub",
-    "stackoverflow": "problems-advanced-sub"
+    "booking": "problems-booking-sub",
+    "hifreq": "problems-booking-sub",
+    "uber": "problems-booking-sub",
+    "movies": "problems-booking-sub",
+    "gaming": "problems-gaming-sub",
+    "chess": "problems-gaming-sub",
+    "tictactoe": "problems-gaming-sub",
+    "enterprise": "problems-enterprise-sub",
+    "advanced": "problems-enterprise-sub",
+    "atm": "problems-enterprise-sub",
+    "shopping": "problems-enterprise-sub",
+    "tasks": "problems-enterprise-sub",
+    "stackoverflow": "problems-enterprise-sub"
   };
 
   const showPage = (rawTargetId, updateUrl = true, subTargetId = null) => {
