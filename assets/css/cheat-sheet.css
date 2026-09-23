@@ -2193,3 +2193,85 @@ h1 {
     content: "" !important;
   }
 }
+
+/* ==========================================================================
+   UML Diagram & Machine Coding Problem Cards
+   ========================================================================== */
+.uml-card {
+  margin: 1.25rem 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  overflow: hidden;
+}
+
+.uml-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--orange);
+}
+
+.uml-wrap {
+  overflow-x: auto;
+  text-align: center;
+  background: #181818;
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid var(--border-soft);
+}
+
+.uml-diagram-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  background-color: #ffffff;
+  padding: 0.5rem;
+}
+
+.req-box {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: rgba(255, 161, 22, 0.05);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 6px 6px 0;
+}
+
+.req-box h4 {
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.req-list {
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.req-list li {
+  margin-bottom: 0.35rem;
+}
+
+.design-patterns-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.dp-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(45, 212, 191, 0.12);
+  color: var(--cyan);
+  border: 1px solid rgba(45, 212, 191, 0.25);
+}

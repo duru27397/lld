@@ -28,33 +28,35 @@
 
   const pageAliases = {
     "oop": "oop-blueprint",
-    "inheritance": "oop-mro-sub",
-    "mro": "oop-mro-sub",
-    "composition": "oop-composition-sub",
-    "solid": "solid-blueprint",
-    "srp": "solid-srp-ocp-sub",
-    "ocp": "solid-srp-ocp-sub",
-    "lsp": "solid-lsp-isp-dip-sub",
-    "isp": "solid-lsp-isp-dip-sub",
-    "dip": "solid-lsp-isp-dip-sub",
-    "decorators": "deco-blueprint",
-    "methods": "deco-methods-sub",
-    "protocols": "deco-custom-sub",
-    "concurrency": "threads-blueprint",
-    "threads": "threads-blueprint",
-    "sync": "threads-sync-sub",
-    "coordination": "threads-coord-sub",
-    "caching": "cache-blueprint",
-    "cache": "cache-blueprint",
-    "ttl": "cache-ttl-sub",
-    "eviction": "cache-eviction-sub",
-    "testing": "testing-blueprint",
-    "mock": "testing-mock-sub",
-    "patch": "testing-patch-sub",
-    "machine-coding": "mc-playbook-sub",
-    "playbook": "mc-playbook-sub",
-    "kv-store": "mc-kv-store-sub",
-    "rate-limiter": "mc-rate-limiter-sub"
+    "pillars": "oop-pillars-sub",
+    "relationships": "oop-relationships-sub",
+    "principles": "principles-blueprint",
+    "core-principles": "principles-core-sub",
+    "solid": "principles-solid-sub",
+    "creational": "creational-blueprint",
+    "structural": "structural-blueprint",
+    "behavioral": "behavioral-blueprint",
+    "concurrency": "concurrency-blueprint",
+    "threads": "concurrency-blueprint",
+    "sync": "concurrency-sync-sub",
+    "problems": "problems-blueprint",
+    "foundational": "problems-foundational-sub",
+    "parkinglot": "problems-foundational-sub",
+    "lru": "problems-foundational-sub",
+    "elevator": "problems-foundational-sub",
+    "splitwise": "problems-foundational-sub",
+    "hifreq": "problems-hifreq-sub",
+    "vending": "problems-hifreq-sub",
+    "pubsub": "problems-hifreq-sub",
+    "uber": "problems-hifreq-sub",
+    "movies": "problems-hifreq-sub",
+    "advanced": "problems-advanced-sub",
+    "atm": "problems-advanced-sub",
+    "logging": "problems-advanced-sub",
+    "traffic": "problems-advanced-sub",
+    "food": "problems-advanced-sub",
+    "tasks": "problems-advanced-sub",
+    "stackoverflow": "problems-advanced-sub"
   };
 
   const showPage = (rawTargetId, updateUrl = true, subTargetId = null) => {
@@ -149,16 +151,6 @@
       const targetId = href.slice(1);
       const subTargetId = item.dataset.targetSub || null;
       showPage(targetId, true, subTargetId);
-    });
-  });
-
-  // Pattern reference back-links
-  document.querySelectorAll(".pattern-ref-link").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const href = link.getAttribute("href");
-      if (!href) return;
-      showPage(href.slice(1), true);
     });
   });
 
