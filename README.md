@@ -36,7 +36,7 @@ Built with a 3-level hierarchical navigation tree (Category $\to$ Subcategory $\
 
 ---
 
-## Comprehensive 7-Category Curriculum
+## Comprehensive 8-Category Curriculum
 
 ### 1. 🧱 OOP Fundamentals & Class Relationships
 - **Core Pillars**: Classes & Objects, Encapsulation with `@property`, Abstraction with `abc.ABC`, and Polymorphic method dispatch.
@@ -130,6 +130,16 @@ Complete end-to-end Python 3 implementations with system requirements, local UML
   - **LinkedIn Professional Network**: Connection graph modeling, job posting & application, feed recommendation.
   - **Social Networking Service (Facebook)**: Bidirectional friendship graph, post & comment tree, notifications.
   - **Music Streaming Service (Spotify)**: Audio stream buffer, playlist iterator, recommendation engine.
+
+### 8. 🧪 Testing, Mocking & Modern Python Idioms
+- **Unit Testing & Assertion Suite**: `unittest.TestCase` assertions (`assertEqual`, `assertTrue`/`assertFalse`, `assertRaises`, `assertIn`/`assertNotIn`, `assertAlmostEqual`, `assertCountEqual`).
+- **Mocking & Spying**: `unittest.mock.Mock(spec=...)`, `MagicMock` (dunder protocols `__len__`, `__iter__`, `__getitem__`), `return_value`, `side_effect` for simulating exceptions and sequential states, and call assertions (`assert_called_once_with`).
+- **Monkey Patching**: `@patch`, `@patch.object`, and `@patch.dict(os.environ, ...)` with automatic scoped teardown.
+- **Deterministic Time Mocking**: Freezing and advancing system clock with `patch('time.time')` for TTL caches and rate limiters without `time.sleep()`.
+- **Integration Test Driver & Main Method**: Custom test suites with `unittest.TestLoader`, multi-threaded concurrent integration tests, and programmatic `main()` CLI runners with proper status exit codes.
+- **Domain Exceptions & Chaining**: Base application exception hierarchies, preserving root cause stack traces with `raise ... from err`, and idiomatic `try-except-else-finally`.
+- **Class-Based Context Managers**: Reusable resource management and transactional state rollback scopes using `__enter__` and `__exit__`.
+- **Modern Contextlib Utilities**: Generator-based `@contextlib.contextmanager`, exception suppression with `contextlib.suppress`, and dynamic multi-lock management using `contextlib.ExitStack`.
 
 ---
 

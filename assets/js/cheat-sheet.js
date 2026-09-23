@@ -57,7 +57,15 @@
     "atm": "problems-enterprise-sub",
     "shopping": "problems-enterprise-sub",
     "tasks": "problems-enterprise-sub",
-    "stackoverflow": "problems-enterprise-sub"
+    "stackoverflow": "problems-enterprise-sub",
+    "testing": "testing-blueprint",
+    "tests": "testing-blueprint",
+    "ut": "testing-ut-mocking-sub",
+    "mock": "testing-ut-mocking-sub",
+    "mocking": "testing-ut-mocking-sub",
+    "exceptions": "testing-exceptions-context-sub",
+    "contextlib": "testing-exceptions-context-sub",
+    "with": "testing-exceptions-context-sub"
   };
 
   const showPage = (rawTargetId, updateUrl = true, subTargetId = null) => {
