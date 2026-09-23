@@ -69,6 +69,7 @@ This guide is built strictly for **Machine Coding Interviews** where interviewer
 
 ---
 
-## How to Open
+## Live Demo & How to Open
 
-Open [index.html](index.html) or [lld_revision.html](lld_revision.html) directly in any web browser (Safari, Chrome, Firefox, Edge). No server, build step, package manager, or internet connection is required.
+- **Online GitHub Pages**: [https://duru27397.github.io/lld/](https://duru27397.github.io/lld/)
+- **Local Offline Use**: Open [index.html](index.html) or [lld_revision.html](lld_revision.html) directly in any web browser (Safari, Chrome, Firefox, Edge). No server, build step, package manager, or internet connection is required.
