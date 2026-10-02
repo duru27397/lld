@@ -38,7 +38,25 @@
     "behavioral": "behavioral-blueprint",
     "concurrency": "concurrency-blueprint",
     "threads": "concurrency-blueprint",
+    "mthreading": "concurrency-blueprint",
+    "multithreading": "concurrency-blueprint",
     "sync": "concurrency-sync-sub",
+    "primitives": "concurrency-sync-sub",
+    "lock": "concurrency-sync-sub",
+    "rlock": "concurrency-sync-sub",
+    "condition": "concurrency-sync-sub",
+    "semaphore": "concurrency-sync-sub",
+    "event": "concurrency-sync-sub",
+    "patterns": "concurrency-patterns-sub",
+    "concurrency-patterns": "concurrency-patterns-sub",
+    "producer-consumer": "concurrency-patterns-sub",
+    "prodcons": "concurrency-patterns-sub",
+    "thread-sync": "concurrency-patterns-sub",
+    "synchronization": "concurrency-patterns-sub",
+    "deadlocks": "concurrency-patterns-sub",
+    "deadlock": "concurrency-patterns-sub",
+    "race-conditions": "concurrency-patterns-sub",
+    "race": "concurrency-patterns-sub",
     "problems": "problems-blueprint",
     "foundational": "problems-foundational-sub",
     "parkinglot": "problems-foundational-sub",
@@ -121,6 +139,7 @@
 
     // Handle subTargetId highlighting within page if specified
     if (subTargetId) {
+      if (subTargetId === "conc-mutex-lock") subTargetId = "conc-lock";
       const subElem = document.getElementById(subTargetId);
       if (subElem) {
         document.querySelectorAll(".technique-card.highlighted, .pattern-card.highlighted, .blueprint-card.highlighted").forEach((c) => c.classList.remove("highlighted"));

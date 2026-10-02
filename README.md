@@ -82,14 +82,19 @@ Built with a 3-level hierarchical navigation tree (Category $\to$ Subcategory $\
 - **Memento**: Capturing and externalizing internal object state for undo/redo stacks without violating encapsulation.
 - **Visitor**: Executing new operations on object structures using double dispatch without modifying classes.
 
-### 6. ⏱️ Concurrency & Multi-Threading
-- **GIL & Python Threading Model**: In-memory thread safety vs bytecode preemption.
-- **Mutex & Reentrant Locks**: `threading.Lock` vs `threading.RLock` to eliminate self-deadlocks in nested methods.
-- **Semaphores**: `threading.BoundedSemaphore` for connection pools and bounded rate limiting.
-- **Condition Variables**: `threading.Condition` with `wait()`, `notify()`, and `notify_all()` guarded by `while` loops.
-- **Producer-Consumer**: `queue.Queue` with worker thread pools, backpressure, and poison-pill termination.
-- **Thread Pool Pattern**: `concurrent.futures.ThreadPoolExecutor` for asynchronous batch execution.
-- **Reader-Writer Lock**: Writer-preferring lock ensuring high read throughput while avoiding writer starvation.
+### 6. ⏱️ Multi-Threading (MThreading) & Concurrency
+Comprehensive coverage of all core synchronization primitives, coordination patterns, and concurrency pitfalls in Python 3:
+- **Lock**: `threading.Lock` for binary mutual exclusion and critical section scoping via `with lock:` context managers; non-reentrant self-deadlock mechanics.
+- **RLock**: `threading.RLock` with owning-thread ID and recursion depth counter to eliminate self-deadlocks during nested or recursive method invocations.
+- **Condition**: `threading.Condition` with `wait()`, `notify()`, and `notify_all()` guarded by mandatory `while` loops to eliminate spurious wakeups.
+- **Semaphore**: `threading.Semaphore` vs `threading.BoundedSemaphore` for connection pools, rate limiting, and preventing permit overflow bugs.
+- **Event**: `threading.Event` one-to-many broadcast state signaling (`set()`, `clear()`, `wait()`, `is_set()`) for thread gates and clean cancellation.
+- **Producer / Consumer**: Bounded buffer architecture using `queue.Queue(maxsize=...)`, backpressure throttling, `task_done()`/`join()` completion, and sentinel poison-pill shutdown.
+- **Thread Synchronization**: Preemptive bytecode execution, memory visibility, and rendezvous coordination with `threading.Barrier`.
+- **Deadlocks**: The 4 Coffman conditions (Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait), deadlock reproduction, Hierarchical Lock Ordering, timeouts, and `contextlib.ExitStack`.
+- **Race Conditions**: Time-of-Check to Time-of-Use (TOCTOU), Read-Modify-Write hazards, CPython bytecode disassembly (`LOAD`, `STORE` preemption windows), and atomic critical sections.
+- **Thread Pool Pattern**: `concurrent.futures.ThreadPoolExecutor` for asynchronous batch task submission and `as_completed` future resolution.
+- **Reader-Writer Lock**: Writer-preferring RWLock ensuring high read concurrency without writer starvation.
 
 ### 7. 💻 Real-World Machine Coding Systems (All 33 Practical Systems)
 Complete end-to-end Python 3 implementations with system requirements, local UML diagrams, key classes rationale, and runnable multi-file code:
