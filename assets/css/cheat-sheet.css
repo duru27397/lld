@@ -2504,3 +2504,53 @@ h1 {
   border-radius: 3px;
   font-size: 0.83rem;
 }
+
+/* Concurrency Master Table */
+.concurrency-table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0 1.5rem 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.concurrency-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  background: var(--bg-surface);
+}
+
+.concurrency-table th {
+  background: #222222;
+  color: var(--orange);
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.concurrency-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text);
+  line-height: 1.45;
+  vertical-align: middle;
+}
+
+.concurrency-table tr:last-child td {
+  border-bottom: none;
+}
+
+.concurrency-table tr:hover td {
+  background: rgba(255, 161, 22, 0.04);
+}
+
+.concurrency-table code {
+  color: #a5d6ff;
+  background: #181818;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}

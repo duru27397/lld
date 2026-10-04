@@ -4545,219 +4545,561 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
           </article>
         </section>
       </section>      <!-- PAGE: concurrency-blueprint -->
-      <section class="page-view" id="concurrency-blueprint" data-topic-title="Multi-Threading &amp; Concurrency" data-page-title="Overview &amp; Blueprint" aria-hidden="true">
+      <section class="page-view" id="concurrency-blueprint" data-topic-title="Multi-Threading &amp; Concurrency" data-page-title="Multi-Threading (MThreading) Master Blueprint &amp; Syntax Cheat Sheet" aria-hidden="true">
         <header class="topic-heading">
-          <span class="level-tag">Category 6 • Concurrency Blueprint</span>
-          <h1>Multi-Threading (MThreading) &amp; Concurrency Blueprint</h1>
-          <p class="topic-summary">Master Python 3 concurrency fundamentals for Low-Level Design: understand the Global Interpreter Lock (GIL), atomic operations, race condition prevention, and thread-safe data structures using modern standard library primitives.</p>
+          <span class="level-tag">Category 6 • Visual Master Overview • Concurrency Blueprint</span>
+          <h1>Multi-Threading (MThreading) Master Blueprint &amp; Syntax Cheat Sheet</h1>
+          <p class="topic-summary">Understand threads, processes, and the GIL in Python 3. Learn every concurrency primitive, its real-world intuition, all useful functions and methods, and minimal runnable examples in one place.</p>
         </header>
-        <p class="section-lead">
-          Concurrency is a pivotal requirement in Machine Coding interviews. In Python, OS threads run under the Global Interpreter Lock (GIL), meaning threads execute concurrently on I/O-bound tasks and time-slice bytecode instructions for in-memory systems. You must guarantee thread-safety for shared state (caches, rate limiters, inventory counters) using proper synchronization primitives.
-        </p>
 
-        <div class="concept-grid">
-          <div class="concept-card">
-            <h4>1. GIL &amp; Bytecode Preemption</h4>
-            <p>The GIL protects CPython memory, NOT application state! The interpreter preempts threads every 5ms. Compound bytecodes (e.g. <code>x += 1</code>) are non-atomic and require locks.</p>
+        <article class="w3-topic-card" id="bp-intro">
+          <div class="w3-topic-header">
+            <h3>1. What is Multi-Threading in Python? (Threads vs Processes &amp; The GIL)</h3>
+            <span class="w3-step-badge">Core Mental Model</span>
           </div>
-          <div class="concept-card">
-            <h4>2. Mutual Exclusion (Lock vs RLock)</h4>
-            <p>Standard <code>Lock</code> permanently self-deadlocks if re-acquired by the same thread. Use <code>RLock</code> for recursion and public methods that invoke other synchronized internal methods.</p>
+          <div class="step-explainer">
+            <p><strong>The Roommates Analogy:</strong> Think of a <strong>Process</strong> as a separate house with its own private kitchen and plumbing (independent memory space). Think of <strong>Threads</strong> as roommates living inside the same house: they can talk and share the living room table instantly (shared heap memory), but if two roommates try to write on the exact same notebook at the same second without taking turns, the notes get scribbled and corrupted (race conditions!).</p>
           </div>
-          <div class="concept-card">
-            <h4>3. State Signaling (Condition)</h4>
-            <p>Never busy-wait (<code>while not ready: pass</code>). Use <code>threading.Condition</code> to suspend threads until state predicates change. Always test conditions inside a <code>while</code> loop.</p>
-          </div>
-          <div class="concept-card">
-            <h4>4. Resource Throttling (Semaphore)</h4>
-            <p>Limit concurrent connections and workers. Always prefer <code>BoundedSemaphore</code> over <code>Semaphore</code> to prevent capacity drift caused by accidental extra releases.</p>
-          </div>
-          <div class="concept-card">
-            <h4>5. Broadcast Signaling (Event)</h4>
-            <p>Use <code>threading.Event</code> for one-to-many state latches. <code>set()</code> unblocks all waiting worker threads simultaneously; <code>is_set()</code> coordinates clean thread cancellation.</p>
-          </div>
-          <div class="concept-card">
-            <h4>6. Deadlocks &amp; Race Prevention</h4>
-            <p>Eliminate circular wait by enforcing Global Lock Ordering (sorting locks by ID). Eliminate TOCTOU race conditions by encapsulating checks and mutations in atomic critical sections.</p>
-          </div>
-        </div>
+          <ul class="w3-bullet-list">
+            <li><strong>Thread vs Process:</strong> Use <em>Threads</em> for I/O-bound tasks (network HTTP calls, database queries, reading disk files). Use <em>Processes</em> (via <code>multiprocessing</code>) for CPU-bound tasks (heavy matrix math, image rendering, machine learning inference).</li>
+            <li><strong>The GIL (Global Interpreter Lock):</strong> CPython has an internal lock ensuring only one thread executes raw Python bytecode at any microsecond. When a thread executes I/O (e.g. <code>time.sleep</code>, socket read, SQL query), it <strong>releases the GIL</strong>, allowing another thread to execute in true concurrency!</li>
+            <li><strong>The Golden Rule of LLD:</strong> Because threads share memory, you MUST synchronize shared mutable state (counters, caches, queues) using synchronization primitives.</li>
+          </ul>
+        </article>
 
-        <h3>1. Thread-Safe State Architecture (RLock Blueprint)</h3>
-        <section class="blueprint-card" aria-label="Thread-Safe State Store">
-          <button class="copy-button blueprint-copy" type="button" data-code="conc-bp-store"><span>📋</span> Copy</button>
-          <pre class="code-block" id="conc-bp-store"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span>
-</span>
-<span class="line-text"><span class="flow">import</span> <span class="var">time</span>
-</span>
-<span class="line-text"><span class="flow">from</span> <span class="var">typing</span> <span class="flow">import</span> <span class="type">Dict</span><span class="punct">,</span> <span class="type">Any</span><span class="punct">,</span> <span class="type">Optional</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text"><span class="kw-class">class</span> <span class="type">ThreadSafeStateStore</span><span class="punct">:</span>
-</span>
-<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Thread-safe in-memory key-value store using RLock.
-    
-    RLock (Reentrant Lock) allows the same thread to acquire the lock multiple times
-    without deadlocking itself, making it ideal for Low-Level Design where helper
-    methods also need locking.
-    &quot;&quot;&quot;</span>Thread-safe in-memory key-value store using RLock.</span>
-<span class="line-text">    </span>
-<span class="line-text">    RLock (Reentrant Lock) allows the same thread to acquire the lock multiple times</span>
-<span class="line-text">    without deadlocking itself, making it ideal for Low-Level Design where helper</span>
-<span class="line-text">    methods also need locking.</span>
-<span class="line-text">    &quot;&quot;&quot;
-</span>
-<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="kw-def">None</span><span class="punct">:</span>
-</span>
-<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="fn">RLock</span><span class="punct">(</span><span class="punct">)</span>
-</span>
-<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">:</span> <span class="type">Dict</span><span class="punct">[</span><span class="type">str</span><span class="punct">,</span> <span class="type">Any</span><span class="punct">]</span> <span class="punct">=</span> <span class="punct">{</span><span class="punct">}</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text">    <span class="kw-def">def</span> <span class="fn">put</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">,</span> <span class="var">value</span><span class="punct">:</span> <span class="type">Any</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="kw-def">None</span><span class="punct">:</span>
-</span>
-<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span>
-</span>
-<span class="line-text">            <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">[</span><span class="var">key</span><span class="punct">]</span> <span class="punct">=</span> <span class="var">value</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text">    <span class="kw-def">def</span> <span class="fn">get</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">Optional</span><span class="punct">[</span><span class="type">Any</span><span class="punct">]</span><span class="punct">:</span>
-</span>
-<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span>
-</span>
-<span class="line-text">            <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">.</span><span class="fn">get</span><span class="punct">(</span><span class="var">key</span><span class="punct">)</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text">    <span class="kw-def">def</span> <span class="fn">get_or_set</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">,</span> <span class="var">default_factory</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">Any</span><span class="punct">:</span>
-</span>
-<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span>
-</span>
-<span class="line-text">            <span class="comment"># Reentrant: get() can be safely called here without deadlocking</span>
-</span>
-<span class="line-text">            <span class="var">val</span> <span class="punct">=</span> <span class="param">self</span><span class="punct">.</span><span class="fn">get</span><span class="punct">(</span><span class="var">key</span><span class="punct">)</span>
-</span>
-<span class="line-text">            <span class="flow">if</span> <span class="var">val</span> <span class="flow">is</span> <span class="kw-def">None</span><span class="punct">:</span>
-</span>
-<span class="line-text">                <span class="var">val</span> <span class="punct">=</span> <span class="fn">default_factory</span><span class="punct">(</span><span class="punct">)</span>
-</span>
-<span class="line-text">                <span class="param">self</span><span class="punct">.</span><span class="fn">put</span><span class="punct">(</span><span class="var">key</span><span class="punct">,</span> <span class="var">val</span><span class="punct">)</span>
-</span>
-<span class="line-text">            <span class="flow">return</span> <span class="var">val</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text">    <span class="kw-def">def</span> <span class="fn">remove</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">Optional</span><span class="punct">[</span><span class="type">Any</span><span class="punct">]</span><span class="punct">:</span>
-</span>
-<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span>
-</span>
-<span class="line-text">            <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">.</span><span class="fn">pop</span><span class="punct">(</span><span class="var">key</span><span class="punct">,</span> <span class="kw-def">None</span><span class="punct">)</span></span></code></pre>
-        </section>
+        <article class="w3-topic-card" id="bp-decision-table">
+          <div class="w3-topic-header">
+            <h3>2. Master Decision Matrix: All Concurrency Syntaxes at a Glance</h3>
+            <span class="w3-step-badge">Quick Reference</span>
+          </div>
+          <div class="step-explainer">
+            <p>Use this table during Low-Level Design interviews to instantly pick the exact right primitive for your problem.</p>
+          </div>
+          <div class="concurrency-table-wrap">
+            <table class="concurrency-table">
+              <thead>
+                <tr>
+                  <th>Primitive Syntax</th>
+                  <th>Intuition / Real-World Metaphor</th>
+                  <th>Primary Purpose</th>
+                  <th>Key Useful Functions &amp; Methods</th>
+                  <th>When to Use in LLD</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>threading.Thread</code></td>
+                  <td>Independent worker</td>
+                  <td>Spawning and managing an OS thread</td>
+                  <td><code>start()</code>, <code>join()</code>, <code>is_alive()</code>, <code>daemon</code></td>
+                  <td>Background daemon tasks, heartbeat monitors</td>
+                </tr>
+                <tr>
+                  <td><code>threading.Lock</code></td>
+                  <td>Single restroom key</td>
+                  <td>Mutual exclusion: only 1 thread at a time</td>
+                  <td><code>acquire()</code>, <code>release()</code>, <code>locked()</code>, <code>with lock:</code></td>
+                  <td>Protecting simple shared variables, counters</td>
+                </tr>
+                <tr>
+                  <td><code>threading.RLock</code></td>
+                  <td>Keycard for nested doors</td>
+                  <td>Reentrant mutex: same thread can re-acquire</td>
+                  <td><code>acquire()</code>, <code>release()</code>, <code>with rlock:</code></td>
+                  <td>Recursive algorithms, OOP helper method patterns</td>
+                </tr>
+                <tr>
+                  <td><code>threading.Condition</code></td>
+                  <td>Restaurant table buzzer</td>
+                  <td>Signaling threads when state conditions change</td>
+                  <td><code>wait()</code>, <code>wait_for()</code>, <code>notify()</code>, <code>notify_all()</code></td>
+                  <td>Bounded buffers, rate limiters, pub-sub</td>
+                </tr>
+                <tr>
+                  <td><code>threading.BoundedSemaphore</code></td>
+                  <td>Parking garage counter</td>
+                  <td>Limiting concurrent access to a finite pool</td>
+                  <td><code>acquire()</code>, <code>release()</code>, <code>with sem:</code></td>
+                  <td>Database connection pools, API rate limiters</td>
+                </tr>
+                <tr>
+                  <td><code>threading.Event</code></td>
+                  <td>Race starting pistol</td>
+                  <td>One-to-many broadcast state signaling</td>
+                  <td><code>wait()</code>, <code>set()</code>, <code>clear()</code>, <code>is_set()</code></td>
+                  <td>Worker startup gates, graceful cancellation loops</td>
+                </tr>
+                <tr>
+                  <td><code>threading.Barrier</code></td>
+                  <td>Rollercoaster 4-passenger latch</td>
+                  <td>Rendezvous point for a fixed group of threads</td>
+                  <td><code>wait()</code>, <code>reset()</code>, <code>abort()</code>, <code>parties</code></td>
+                  <td>Multi-phase pipelines, distributed simulation steps</td>
+                </tr>
+                <tr>
+                  <td><code>queue.Queue</code></td>
+                  <td>Factory conveyor belt</td>
+                  <td>Thread-safe FIFO pipeline with backpressure</td>
+                  <td><code>put()</code>, <code>get()</code>, <code>task_done()</code>, <code>join()</code></td>
+                  <td>Producer-consumer architectures, job dispatchers</td>
+                </tr>
+                <tr>
+                  <td><code>ThreadPoolExecutor</code></td>
+                  <td>Dispatch call center (16 workers)</td>
+                  <td>High-throughput worker pool &amp; async Futures</td>
+                  <td><code>submit()</code>, <code>result()</code>, <code>map()</code>, <code>as_completed()</code></td>
+                  <td>Parallel batch web scrapers, REST API aggregators</td>
+                </tr>
+                <tr>
+                  <td><code>ReadWriteLock</code></td>
+                  <td>Public bulletin board</td>
+                  <td>Concurrent readers, exclusive writer priority</td>
+                  <td><code>readLock()</code>, <code>writeLock()</code></td>
+                  <td>High-read in-memory caches, read-heavy catalogs</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
 
-        <h3>2. Thread Lifecycle, Daemons &amp; Clean Cancellation</h3>
-        <section class="blueprint-card" aria-label="Thread Lifecycle &amp; Event Cancellation">
-          <button class="copy-button blueprint-copy" type="button" data-code="conc-bp-lifecycle"><span>📋</span> Copy</button>
-          <pre class="code-block" id="conc-bp-lifecycle"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span>
-</span>
-<span class="line-text"><span class="flow">import</span> <span class="var">time</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text"><span class="kw-def">def</span> <span class="fn">worker_task</span><span class="punct">(</span><span class="var">stop_event</span><span class="punct">:</span> <span class="var">threading</span><span class="punct">.</span><span class="var">Event</span><span class="punct">,</span> <span class="var">worker_id</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="kw-def">None</span><span class="punct">:</span>
-</span>
-<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Worker loop that responds gracefully to cancellation events.&quot;&quot;&quot;</span>
-</span>
-<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Worker {worker_id} started.&quot;</span><span class="punct">)</span>
-</span>
-<span class="line-text">    <span class="flow">while</span> <span class="flow">not</span> <span class="var">stop_event</span><span class="punct">.</span><span class="fn">is_set</span><span class="punct">(</span><span class="punct">)</span><span class="punct">:</span>
-</span>
-<span class="line-text">        <span class="comment"># Simulate work or wait with timeout to allow checking stop_event</span>
-</span>
-<span class="line-text">        <span class="var">time</span><span class="punct">.</span><span class="fn">sleep</span><span class="punct">(</span><span class="num">0.1</span><span class="punct">)</span>
-</span>
-<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Worker {worker_id} shutting down cleanly.&quot;</span><span class="punct">)</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text"><span class="comment"># Daemon vs Non-Daemon Lifecycle</span>
-</span>
-<span class="line-text"><span class="var">stop_signal</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="fn">Event</span><span class="punct">(</span><span class="punct">)</span>
-</span>
-<span class="line-text"><span class="var">threads</span> <span class="punct">=</span> <span class="punct">[</span><span class="punct">]</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text"><span class="flow">for</span> <span class="var">i</span> <span class="flow">in</span> <span class="fn">range</span><span class="punct">(</span><span class="num">3</span><span class="punct">)</span><span class="punct">:</span>
-</span>
-<span class="line-text">    <span class="var">t</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="fn">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">worker_task</span><span class="punct">,</span> <span class="var">args</span><span class="punct">=</span><span class="punct">(</span><span class="var">stop_signal</span><span class="punct">,</span> <span class="var">i</span><span class="punct">)</span><span class="punct">,</span> <span class="var">daemon</span><span class="punct">=</span><span class="kw-def">False</span><span class="punct">)</span>
-</span>
-<span class="line-text">    <span class="var">threads</span><span class="punct">.</span><span class="fn">append</span><span class="punct">(</span><span class="var">t</span><span class="punct">)</span>
-</span>
-<span class="line-text">    <span class="var">t</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text"><span class="var">time</span><span class="punct">.</span><span class="fn">sleep</span><span class="punct">(</span><span class="num">0.3</span><span class="punct">)</span>
-</span>
-<span class="line-text"><span class="var">stop_signal</span><span class="punct">.</span><span class="fn">set</span><span class="punct">(</span><span class="punct">)</span>  <span class="comment"># Signal all workers to terminate</span>
-</span>
-<span class="line-text">
-</span>
-<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span>
-</span>
-<span class="line-text">    <span class="var">t</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="var">timeout</span><span class="punct">=</span><span class="num">2.0</span><span class="punct">)</span>  <span class="comment"># Wait for clean termination</span>
-</span>
-<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">&quot;All worker threads joined successfully.&quot;</span><span class="punct">)</span></span></code></pre>
-        </section>
+        <article class="w3-topic-card" id="bp-syntax-thread">
+          <div class="w3-topic-header">
+            <h3>3. threading.Thread: Spawning &amp; Managing OS Threads</h3>
+            <span class="w3-step-badge">Syntax Primitive 1</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">t = threading.Thread(target=taskFunc, args=(1,), daemon=True)</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> Represents an independent path of execution managed by the operating system.</p>
+            <p><strong>All Useful Functions &amp; Properties:</strong></p>
+            <p>• <code>t.start() -> None</code>: Begins execution in a new OS thread (calls <code>target(*args)</code>).</p>
+            <p>• <code>t.join(timeout=None) -> None</code>: Suspends calling thread until <code>t</code> finishes (or timeout expires).</p>
+            <p>• <code>t.is_alive() -> bool</code>: Returns <code>True</code> if thread has started and not yet terminated.</p>
+            <p>• <code>t.daemon = True</code>: Daemon threads exit automatically when the main program finishes.</p>
+            <p>• <code>threading.current_thread().name</code>: Returns the name of the currently executing thread.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-thread">Copy 3. threading.Thread: Spawning &amp; Managing OS Threads</button>
+            <pre class="code-block" id="code-bp-syntax-thread"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">backgroundWorker</span><span class="punct">(</span><span class="var">workerId</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[{threading.current_thread().name}] Worker {workerId} started.&quot;</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="var">time</span><span class="punct">.</span><span class="fn">sleep</span><span class="punct">(</span><span class="num">0.04</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[{threading.current_thread().name}] Worker {workerId} finished.&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="comment"># Create, start, and join thread</span></span>
+<span class="line-text"><span class="var">t</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">backgroundWorker</span><span class="punct">,</span> <span class="var">args</span><span class="punct">=</span><span class="punct">(</span><span class="num">1</span><span class="punct">,</span><span class="punct">)</span><span class="punct">,</span> <span class="var">name</span><span class="punct">=</span><span class="str">&quot;WorkerThread-1&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Is thread running? {t.is_alive()}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;After join, is thread alive? {t.is_alive()}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>[WorkerThread-1] Worker 1 started.</div>
+            <div>Is thread running? True</div>
+            <div>[WorkerThread-1] Worker 1 finished.</div>
+            <div>After join, is thread alive? False</div>
+          </div>
+        </article>
 
-        <h3 class="section-title">Classic Concurrency Problems in Interviews</h3>
-        <div class="pattern-problem-grid">
-          <div class="pattern-problem-card">
-            <div class="pattern-problem-top">
-              <div class="pattern-problem-title">
-                <span>Thread-Safe LRU Cache</span>
-              </div>
-              <div class="pattern-problem-badges">
-                <span class="problem-tag">Double-Checked Locking / RLock</span>
-                <span class="badge-diff diff-med">Core LLD</span>
-              </div>
-            </div>
-            <p class="pattern-problem-takeaway">
-              <strong>Machine Coding Takeaway:</strong> Ensure atomic get/put, node eviction, and list reordering across concurrent reader and writer threads.
-            </p>
+        <article class="w3-topic-card" id="bp-syntax-lock">
+          <div class="w3-topic-header">
+            <h3>4. threading.Lock: Mutual Exclusion (Mutex)</h3>
+            <span class="w3-step-badge">Syntax Primitive 2</span>
           </div>
-          <div class="pattern-problem-card">
-            <div class="pattern-problem-top">
-              <div class="pattern-problem-title">
-                <span>Token Bucket Rate Limiter</span>
-              </div>
-              <div class="pattern-problem-badges">
-                <span class="problem-tag">Lock / Condition</span>
-                <span class="badge-diff diff-hard">High Frequency</span>
-              </div>
-            </div>
-            <p class="pattern-problem-takeaway">
-              <strong>Machine Coding Takeaway:</strong> Refill tokens dynamically while locking only during token consumption to minimize contention.
-            </p>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">lock = threading.Lock()</code>
           </div>
-          <div class="pattern-problem-card">
-            <div class="pattern-problem-top">
-              <div class="pattern-problem-title">
-                <span>Multi-Threaded Pub-Sub Broker</span>
-              </div>
-              <div class="pattern-problem-badges">
-                <span class="problem-tag">Queue / Worker Pool</span>
-                <span class="badge-diff diff-hard">Advanced LLD</span>
-              </div>
-            </div>
-            <p class="pattern-problem-takeaway">
-              <strong>Machine Coding Takeaway:</strong> Decouple topic publishing from subscriber consumption using thread-safe unbounded/bounded queues.
-            </p>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> A binary lock (0 or 1) ensuring only ONE thread can enter a critical section at a time. All other contending threads are suspended by the OS.</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>lock.acquire(blocking=True, timeout=-1) -> bool</code>: Acquires the lock. Returns <code>True</code>.</p>
+            <p>• <code>lock.release() -> None</code>: Releases the lock, waking 1 waiting thread. Raises <code>RuntimeError</code> if not acquired.</p>
+            <p>• <code>lock.locked() -> bool</code>: Returns <code>True</code> if lock is currently held.</p>
+            <p>• <code>with lock:</code>: Recommended! Automatically acquires on enter and releases on exit.</p>
           </div>
-        </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-lock">Copy 4. threading.Lock: Mutual Exclusion (Mutex)</button>
+            <pre class="code-block" id="code-bp-syntax-lock"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">lock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Lock</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">sharedCount</span> <span class="punct">=</span> <span class="num">0</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">safeIncrement</span><span class="punct">(</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="var">global</span> <span class="var">sharedCount</span></span>
+<span class="line-text">    <span class="flow">with</span> <span class="var">lock</span><span class="punct">:</span>  <span class="comment"># Automatically acquires and releases</span></span>
+<span class="line-text">        <span class="var">sharedCount</span> <span class="punct">+=</span> <span class="num">1</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">threads</span> <span class="punct">=</span> <span class="punct">[</span><span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">safeIncrement</span><span class="punct">)</span> <span class="flow">for</span> <span class="var">_</span> <span class="flow">in</span> <span class="fn">range</span><span class="punct">(</span><span class="num">5</span><span class="punct">)</span><span class="punct">]</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span> <span class="var">t</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span> <span class="var">t</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Final safe count: {sharedCount}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Final safe count: 5</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-rlock">
+          <div class="w3-topic-header">
+            <h3>5. threading.RLock: Reentrant Mutex (No Self-Deadlocks)</h3>
+            <span class="w3-step-badge">Syntax Primitive 3</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">rlock = threading.RLock()</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> A lock that tracks <code>_owner</code> thread and recursion <code>_count</code>. The owning thread can call <code>acquire()</code> multiple times without deadlocking.</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>rlock.acquire()</code>: If same owner, increments <code>_count</code>; if unowned, sets owner and count=1.</p>
+            <p>• <code>rlock.release()</code>: Decrements <code>_count</code>. Lock is only freed to other threads when count reaches 0.</p>
+            <p>• <code>with rlock:</code>: Context manager safely tracking nested entry and exit.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-rlock">Copy 5. threading.RLock: Reentrant Mutex (No Self-Deadlocks)</button>
+            <pre class="code-block" id="code-bp-syntax-rlock"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">rlock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">RLock</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">outer</span><span class="punct">(</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="flow">with</span> <span class="var">rlock</span><span class="punct">:</span>  <span class="comment"># Depth 1</span></span>
+<span class="line-text">        <span class="fn">print</span><span class="punct">(</span><span class="str">&quot;Entered outer function.&quot;</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="fn">inner</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">inner</span><span class="punct">(</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="flow">with</span> <span class="var">rlock</span><span class="punct">:</span>  <span class="comment"># Depth 2 (Same thread: no deadlock!)</span></span>
+<span class="line-text">        <span class="fn">print</span><span class="punct">(</span><span class="str">&quot;Entered inner helper safely.&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="fn">outer</span><span class="punct">(</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Entered outer function.</div>
+            <div>Entered inner helper safely.</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-condition">
+          <div class="w3-topic-header">
+            <h3>6. threading.Condition: State Signaling &amp; Wait-Sets</h3>
+            <span class="w3-step-badge">Syntax Primitive 4</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">cond = threading.Condition(lock=None)</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> Allows threads to wait for state changes. Combines a lock with an OS wait-queue.</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>cond.wait(timeout=None) -> bool</code>: Atomically releases lock and puts thread to sleep.</p>
+            <p>• <code>cond.wait_for(predicate, timeout=None) -> bool</code>: Syntactic sugar for <code>while not predicate(): wait()</code>.</p>
+            <p>• <code>cond.notify(n=1) -> None</code>: Wakes up <code>n</code> waiting threads.</p>
+            <p>• <code>cond.notify_all() -> None</code>: Wakes up ALL waiting threads in the wait-set.</p>
+            <p>• <code>with cond:</code>: Acquires underlying lock (mandatory before calling wait or notify!).</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-condition">Copy 6. threading.Condition: State Signaling &amp; Wait-Sets</button>
+            <pre class="code-block" id="code-bp-syntax-condition"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">cond</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Condition</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">itemReady</span> <span class="punct">=</span> <span class="type">False</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">consumer</span><span class="punct">(</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="flow">with</span> <span class="var">cond</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">while</span> <span class="flow">not</span> <span class="var">itemReady</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="var">cond</span><span class="punct">.</span><span class="fn">wait</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="fn">print</span><span class="punct">(</span><span class="str">&quot;Consumer woke up and processed item!&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">producer</span><span class="punct">(</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="var">global</span> <span class="var">itemReady</span></span>
+<span class="line-text">    <span class="var">time</span><span class="punct">.</span><span class="fn">sleep</span><span class="punct">(</span><span class="num">0.04</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="flow">with</span> <span class="var">cond</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="var">itemReady</span> <span class="punct">=</span> <span class="type">True</span></span>
+<span class="line-text">        <span class="var">cond</span><span class="punct">.</span><span class="fn">notify</span><span class="punct">(</span><span class="punct">)</span>  <span class="comment"># Wake 1 consumer</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">t1</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">consumer</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t2</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">producer</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t1</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span><span class="punct">;</span> <span class="var">t2</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t1</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span><span class="punct">;</span> <span class="var">t2</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Consumer woke up and processed item!</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-semaphore">
+          <div class="w3-topic-header">
+            <h3>7. threading.BoundedSemaphore: Resource Throttling</h3>
+            <span class="w3-step-badge">Syntax Primitive 5</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">sem = threading.BoundedSemaphore(value=3)</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> Maintains an atomic counter of available permits to throttle concurrent access (e.g. max 3 database connections).</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>sem.acquire(blocking=True, timeout=None) -> bool</code>: Decrements permit count. If 0, blocks.</p>
+            <p>• <code>sem.release(n=1) -> None</code>: Increments permit count. In <code>BoundedSemaphore</code>, raises <code>ValueError</code> if capacity exceeded!</p>
+            <p>• <code>with sem:</code>: Automatically acquires permit on enter and returns permit on exit.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-semaphore">Copy 7. threading.BoundedSemaphore: Resource Throttling</button>
+            <pre class="code-block" id="code-bp-syntax-semaphore"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="comment"># Allow maximum 2 concurrent workers</span></span>
+<span class="line-text"><span class="var">pool</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">BoundedSemaphore</span><span class="punct">(</span><span class="var">value</span><span class="punct">=</span><span class="num">2</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">worker</span><span class="punct">(</span><span class="var">wId</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="flow">with</span> <span class="var">pool</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Worker {wId} entered resource pool.&quot;</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="var">time</span><span class="punct">.</span><span class="fn">sleep</span><span class="punct">(</span><span class="num">0.03</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Worker {wId} exiting.&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">threads</span> <span class="punct">=</span> <span class="punct">[</span><span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">worker</span><span class="punct">,</span> <span class="var">args</span><span class="punct">=</span><span class="punct">(</span><span class="var">i</span><span class="punct">+</span><span class="num">1</span><span class="punct">,</span><span class="punct">)</span><span class="punct">)</span> <span class="flow">for</span> <span class="var">i</span> <span class="flow">in</span> <span class="fn">range</span><span class="punct">(</span><span class="num">3</span><span class="punct">)</span><span class="punct">]</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span> <span class="var">t</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span> <span class="var">t</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Worker 1 entered resource pool.</div>
+            <div>Worker 2 entered resource pool.</div>
+            <div>Worker 1 exiting.</div>
+            <div>Worker 3 entered resource pool.</div>
+            <div>Worker 2 exiting.</div>
+            <div>Worker 3 exiting.</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-event">
+          <div class="w3-topic-header">
+            <h3>8. threading.Event: One-to-Many Broadcast Gate</h3>
+            <span class="w3-step-badge">Syntax Primitive 6</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">event = threading.Event()</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> Manages an internal boolean flag initialized to <code>False</code>. When set, unblocks ALL waiting threads simultaneously.</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>event.wait(timeout=None) -> bool</code>: Blocks until flag is True. Returns True (or False on timeout).</p>
+            <p>• <code>event.set() -> None</code>: Sets flag to True and awakens ALL waiting threads at once.</p>
+            <p>• <code>event.clear() -> None</code>: Resets flag back to False (closes the gate).</p>
+            <p>• <code>event.is_set() -> bool</code>: Returns current boolean state of the flag.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-event">Copy 8. threading.Event: One-to-Many Broadcast Gate</button>
+            <pre class="code-block" id="code-bp-syntax-event"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">startSignal</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Event</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">runner</span><span class="punct">(</span><span class="var">rId</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="var">startSignal</span><span class="punct">.</span><span class="fn">wait</span><span class="punct">(</span><span class="punct">)</span>  <span class="comment"># Wait for starting pistol</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Runner {rId} running!&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">threads</span> <span class="punct">=</span> <span class="punct">[</span><span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">runner</span><span class="punct">,</span> <span class="var">args</span><span class="punct">=</span><span class="punct">(</span><span class="var">i</span><span class="punct">+</span><span class="num">1</span><span class="punct">,</span><span class="punct">)</span><span class="punct">)</span> <span class="flow">for</span> <span class="var">i</span> <span class="flow">in</span> <span class="fn">range</span><span class="punct">(</span><span class="num">3</span><span class="punct">)</span><span class="punct">]</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span> <span class="var">t</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">time</span><span class="punct">.</span><span class="fn">sleep</span><span class="punct">(</span><span class="num">0.03</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">&quot;Referee fires starting pistol!&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">startSignal</span><span class="punct">.</span><span class="fn">set</span><span class="punct">(</span><span class="punct">)</span>  <span class="comment"># Broadcast wakeup to all runners!</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">t</span> <span class="flow">in</span> <span class="var">threads</span><span class="punct">:</span> <span class="var">t</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Referee fires starting pistol!</div>
+            <div>Runner 1 running!</div>
+            <div>Runner 2 running!</div>
+            <div>Runner 3 running!</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-barrier">
+          <div class="w3-topic-header">
+            <h3>9. threading.Barrier: Multi-Party Cyclic Rendezvous</h3>
+            <span class="w3-step-badge">Syntax Primitive 7</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">barrier = threading.Barrier(parties=3, action=hookFunc)</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> A gate that blocks until a fixed number of threads (<code>parties</code>) arrive. Once full, releases all threads together and automatically resets.</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>index = barrier.wait(timeout=None) -> int</code>: Blocks until all parties arrive. Returns arrival index (0 to parties-1).</p>
+            <p>• <code>barrier.reset() -> None</code>: Resets barrier to initial empty state.</p>
+            <p>• <code>barrier.abort() -> None</code>: Breaks barrier, raising <code>BrokenBarrierError</code> in all waiters.</p>
+            <p>• <code>barrier.parties</code>: Total number of parties required to trip barrier.</p>
+            <p>• <code>barrier.n_waiting</code>: Number of threads currently waiting.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-barrier">Copy 9. threading.Barrier: Multi-Party Cyclic Rendezvous</button>
+            <pre class="code-block" id="code-bp-syntax-barrier"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">barrier</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Barrier</span><span class="punct">(</span><span class="var">parties</span><span class="punct">=</span><span class="num">2</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">teamPlayer</span><span class="punct">(</span><span class="var">pName</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[{pName}] Arrived at rendezvous point.&quot;</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="var">index</span> <span class="punct">=</span> <span class="var">barrier</span><span class="punct">.</span><span class="fn">wait</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[{pName}] Barrier tripped! Arrival index: {index}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">t1</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">teamPlayer</span><span class="punct">,</span> <span class="var">args</span><span class="punct">=</span><span class="punct">(</span><span class="str">&quot;Player-1&quot;</span><span class="punct">,</span><span class="punct">)</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t2</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">teamPlayer</span><span class="punct">,</span> <span class="var">args</span><span class="punct">=</span><span class="punct">(</span><span class="str">&quot;Player-2&quot;</span><span class="punct">,</span><span class="punct">)</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t1</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span><span class="punct">;</span> <span class="var">t2</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t1</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span><span class="punct">;</span> <span class="var">t2</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>[Player-1] Arrived at rendezvous point.</div>
+            <div>[Player-2] Arrived at rendezvous point.</div>
+            <div>[Player-1] Barrier tripped! Arrival index: 1</div>
+            <div>[Player-2] Barrier tripped! Arrival index: 0</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-queue">
+          <div class="w3-topic-header">
+            <h3>10. queue.Queue: Thread-Safe FIFO Pipeline</h3>
+            <span class="w3-step-badge">Syntax Primitive 8</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">q = queue.Queue(maxsize=10)</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> A thread-safe FIFO queue with condition signaling built-in. Decouples producers and consumers with backpressure.</p>
+            <p><strong>All Useful Functions:</strong></p>
+            <p>• <code>q.put(item, block=True, timeout=None) -> None</code>: Pushes item (blocks if full).</p>
+            <p>• <code>q.get(block=True, timeout=None) -> Any</code>: Pops item (blocks if empty).</p>
+            <p>• <code>q.task_done() -> None</code>: Marks an item retrieved by <code>get()</code> as completely processed.</p>
+            <p>• <code>q.join() -> None</code>: Blocks until all enqueued items have had a matching <code>task_done()</code> called.</p>
+            <p>• <code>q.qsize() -> int</code>: Returns approximate size of the queue.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-queue">Copy 10. queue.Queue: Thread-Safe FIFO Pipeline</button>
+            <pre class="code-block" id="code-bp-syntax-queue"><code><span class="line-text"><span class="flow">import</span> <span class="var">queue</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">q</span> <span class="punct">=</span> <span class="var">queue</span><span class="punct">.</span><span class="type">Queue</span><span class="punct">(</span><span class="var">maxsize</span><span class="punct">=</span><span class="num">5</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">worker</span><span class="punct">(</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="flow">while</span> <span class="type">True</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="var">task</span> <span class="punct">=</span> <span class="var">q</span><span class="punct">.</span><span class="fn">get</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="var">task</span> <span class="flow">is</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="var">q</span><span class="punct">.</span><span class="fn">task_done</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text">            <span class="flow">break</span></span>
+<span class="line-text">        <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Processed: {task}&quot;</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="var">q</span><span class="punct">.</span><span class="fn">task_done</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">t</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Thread</span><span class="punct">(</span><span class="var">target</span><span class="punct">=</span><span class="var">worker</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t</span><span class="punct">.</span><span class="fn">start</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">q</span><span class="punct">.</span><span class="fn">put</span><span class="punct">(</span><span class="str">&quot;Job-A&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">q</span><span class="punct">.</span><span class="fn">put</span><span class="punct">(</span><span class="str">&quot;Job-B&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">q</span><span class="punct">.</span><span class="fn">put</span><span class="punct">(</span><span class="type">None</span><span class="punct">)</span>  <span class="comment"># Poison pill shutdown</span></span>
+<span class="line-text"><span class="var">q</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t</span><span class="punct">.</span><span class="fn">join</span><span class="punct">(</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Processed: Job-A</div>
+            <div>Processed: Job-B</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-threadpool">
+          <div class="w3-topic-header">
+            <h3>11. ThreadPoolExecutor: Worker Pools &amp; Async Futures</h3>
+            <span class="w3-step-badge">Syntax Primitive 9</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> High-level asynchronous task execution engine maintaining reusable worker threads.</p>
+            <p><strong>All Useful Functions &amp; Methods:</strong></p>
+            <p>• <code>future = executor.submit(fn, *args, **kwargs) -> Future</code>: Dispatches background task.</p>
+            <p>• <code>future.result(timeout=None) -> Any</code>: Waits and returns result (or re-raises exception).</p>
+            <p>• <code>future.exception(timeout=None) -> Exception</code>: Returns exception safely without re-raising.</p>
+            <p>• <code>future.done() -> bool</code>: Returns True if task finished or was cancelled.</p>
+            <p>• <code>future.cancel() -> bool</code>: Cancels task if still pending in queue.</p>
+            <p>• <code>future.add_done_callback(fn) -> None</code>: Attaches non-blocking completion hook.</p>
+            <p>• <code>executor.map(fn, *iterables)</code>: Parallel map yielding results in input order.</p>
+            <p>• <code>as_completed(futures)</code>: Generator yielding futures in order of completion (fastest first).</p>
+            <p>• <code>wait(futures, return_when=...)</code>: Batch synchronization.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-threadpool">Copy 11. ThreadPoolExecutor: Worker Pools &amp; Async Futures</button>
+            <pre class="code-block" id="code-bp-syntax-threadpool"><code><span class="line-text"><span class="flow">import</span> <span class="var">concurrent</span><span class="punct">.</span><span class="var">futures</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-def">def</span> <span class="fn">square</span><span class="punct">(</span><span class="var">n</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="flow">return</span> <span class="var">n</span> <span class="punct">*</span> <span class="var">n</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="flow">with</span> <span class="var">concurrent</span><span class="punct">.</span><span class="var">futures</span><span class="punct">.</span><span class="type">ThreadPoolExecutor</span><span class="punct">(</span><span class="var">max_workers</span><span class="punct">=</span><span class="num">4</span><span class="punct">)</span> <span class="flow">as</span> <span class="var">executor</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="comment"># submit() dispatches individual task</span></span>
+<span class="line-text">    <span class="var">fut</span> <span class="punct">=</span> <span class="var">executor</span><span class="punct">.</span><span class="fn">submit</span><span class="punct">(</span><span class="var">square</span><span class="punct">,</span> <span class="num">9</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Square result: {fut.result()}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># map() runs batch in parallel</span></span>
+<span class="line-text">    <span class="var">results</span> <span class="punct">=</span> <span class="fn">list</span><span class="punct">(</span><span class="var">executor</span><span class="punct">.</span><span class="fn">map</span><span class="punct">(</span><span class="var">square</span><span class="punct">,</span> <span class="punct">[</span><span class="num">1</span><span class="punct">,</span> <span class="num">2</span><span class="punct">,</span> <span class="num">3</span><span class="punct">]</span><span class="punct">)</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Batch results: {results}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Square result: 81</div>
+            <div>Batch results: [1, 4, 9]</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="bp-syntax-rwlock">
+          <div class="w3-topic-header">
+            <h3>12. ReadWriteLock: Shared Readers / Exclusive Writers</h3>
+            <span class="w3-step-badge">Syntax Primitive 10</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">rwLock = ReadWriteLock()</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> Advanced pattern allowing infinite concurrent readers when no writes are pending, but enforces exclusive write access with writer priority to prevent writer starvation.</p>
+            <p><strong>All Useful Methods:</strong></p>
+            <p>• <code>with rwLock.readLock():</code>: Acquires shared read access (blocks if writer waiting).</p>
+            <p>• <code>with rwLock.writeLock():</code>: Acquires exclusive write access (blocks all readers and writers).</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-rwlock">Copy 12. ReadWriteLock: Shared Readers / Exclusive Writers</button>
+            <pre class="code-block" id="code-bp-syntax-rwlock"><code><span class="line-text"><span class="comment"># Fast in-memory cache usage</span></span>
+<span class="line-text"><span class="var">cache</span> <span class="punct">=</span> <span class="punct">{</span><span class="str">&quot;config:version&quot;</span><span class="punct">:</span> <span class="str">&quot;2.1&quot;</span><span class="punct">}</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="comment"># Infinite parallel readers</span></span>
+<span class="line-text"><span class="comment"># with rwLock.readLock():</span></span>
+<span class="line-text"><span class="comment">#     val = cache[&quot;config:version&quot;]</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="comment"># Exclusive atomic writer</span></span>
+<span class="line-text"><span class="comment"># with rwLock.writeLock():</span></span>
+<span class="line-text"><span class="comment">#     cache[&quot;config:version&quot;] = &quot;2.2&quot;</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">&quot;ReadWriteLock guarantees maximum read throughput with writer safety!&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>ReadWriteLock guarantees maximum read throughput with writer safety!</div>
+          </div>
+        </article>
       </section>
+
       <!-- PAGE: concurrency-lock-sub -->
       <section class="page-view" id="concurrency-lock-sub" data-topic-title="Multi-Threading &amp; Concurrency" data-page-title="1. Lock (Mutual Exclusion &amp; Critical Sections)" aria-hidden="true">
         <header class="topic-heading">
