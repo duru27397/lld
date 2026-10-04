@@ -749,6 +749,59 @@
               </a>
             </div>
           </div>
+          <!-- 8.3 Dunder (Magic) Methods in Classes -->
+          <div class="tree-node l2-node">
+            <div class="tree-header l2-header">
+              <button class="tree-toggle" type="button" aria-label="Toggle Dunder Methods">
+                <span class="chevron">▸</span>
+              </button>
+              <a class="nav-item l2-link" href="#python-dunder-methods-sub">
+                <span class="nav-title">Dunder (Magic) Methods</span>
+              </a>
+            </div>
+            <div class="tree-children l3-children">
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-lifecycle">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Lifecycle (__new__, __init__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-repr-str">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Strings (__repr__, __str__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-equality-hash">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Equality &amp; Hashing (__eq__, __hash__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-comparison">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Ordering (__lt__, @total_ordering)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-containers">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Containers (__getitem__, __len__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-iteration">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Iteration (__iter__, __next__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-callable">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Callables (__call__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-getattr">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Dynamic Proxy (__getattr__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-slots">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Memory &amp; Dict Bypass (__slots__)</span>
+              </a>
+              <a class="nav-item l3-link" href="#python-dunder-methods-sub" data-target-sub="dunder-capstone">
+                <span class="leaf-dot">•</span>
+                <span class="nav-title">Capstone: ObservableDict</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -34544,6 +34597,10 @@ Architecture:
             <h4>6. Dynamic Multi-Resource ExitStack</h4>
             <p>Safely acquire and unwind a variable number of locks, sockets, or file descriptors without deeply nested with statements using <code>contextlib.ExitStack</code>.</p>
           </div>
+          <div class="concept-card">
+            <h4>7. Dunder (Magic) Methods</h4>
+            <p>Harness Python's data model: object lifecycle (<code>__new__</code>, <code>__init__</code>), value equality (<code>__eq__</code>, <code>__hash__</code>), containers (<code>__getitem__</code>, <code>__len__</code>), callables (<code>__call__</code>), and memory optimization (<code>__slots__</code>).</p>
+          </div>
         </div>
 
         <h3>1. Complete Exception Handling Blueprint (OrderProcessor)</h3>
@@ -35155,7 +35212,493 @@ Traceback:
         </div>
       </section>
 
-<!-- PAGE: testing-blueprint -->
+<!-- PAGE: python-dunder-methods-sub -->
+      <section class="page-view" id="python-dunder-methods-sub" data-topic-title="Multi-Threading &amp; Concurrency" data-page-title="Dunder (Magic) Methods in Python Classes (__init__, __repr__, __getitem__)" aria-hidden="true">
+        <header class="topic-heading">
+          <span class="level-tag">Category 8 • Python 3 OOP Protocols • Dunder Methods</span>
+          <h1>Dunder (Magic) Methods in Python Classes (__init__, __repr__, __getitem__)</h1>
+          <p class="topic-summary">Master Python's special double-underscore methods for Low-Level Design interviews. Learn object lifecycle (__new__, __init__), equality & hashing (__eq__, __hash__), container protocols (__getitem__, __len__), callable objects (__call__), dynamic proxies (__getattr__), and memory optimization with __slots__.</p>
+        </header>
+
+        <article class="w3-topic-card" id="dunder-intro">
+          <div class="w3-topic-header">
+            <h3>1. What are Dunder (Magic) Methods in Python?</h3>
+            <span class="w3-step-badge">Core Concept</span>
+          </div>
+          <div class="step-explainer">
+            <p><strong>Dunder = Double Underscore (<code>__name__</code>):</strong> In Python, special methods with leading and trailing double underscores allow user-defined classes to hook into core language syntax.</p>
+            <p><strong>Operator Overloading & Protocols:</strong> When you write <code>len(obj)</code>, Python invokes <code>obj.__len__()</code>. When you write <code>obj[key]</code>, Python invokes <code>obj.__getitem__(key)</code>. When you write <code>with obj:</code>, Python calls <code>obj.__enter__()</code>.</p>
+            <p><strong>Why Interviewers Love Dunder Methods:</strong> They demonstrate whether you write idiomatic, expressive Python (Pythonic OOP) rather than writing Java-in-Python with clunky getters and setters.</p>
+          </div>
+          <ul class="w3-bullet-list">
+            <li><strong>Never call directly:</strong> Idiomatic code rarely calls <code>obj.__len__()</code>; instead call the builtin <code>len(obj)</code>.</li>
+            <li><strong>Standard Library Protocols:</strong> Python implements protocols (Container, Iterable, ContextManager, Hashable) entirely through dunder methods.</li>
+          </ul>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-lifecycle">
+          <div class="w3-topic-header">
+            <h3>2. Object Lifecycle: __new__ vs __init__ & The Singleton Pattern</h3>
+            <span class="w3-step-badge">Lifecycle Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __new__(cls, *args, **kwargs) -&gt; instance  |  def __init__(self, ...) -&gt; None</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>__new__(cls):</strong> The ACTUAL constructor. Allocates raw memory and returns a brand-new instance of <code>cls</code>. Called BEFORE <code>__init__</code>.</p>
+            <p><strong>__init__(self):</strong> The INITIALIZER. Takes the newly allocated instance and populates its attributes. Must return <code>None</code>.</p>
+            <p><strong>Interview Classic (Thread-Safe Singleton):</strong> Override <code>__new__</code> to intercept instance creation and return the exact same instance every time.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-lifecycle">Copy 2. Object Lifecycle: __new__ vs __init__ & The Singleton Pattern</button>
+            <pre class="code-block" id="code-dunder-lifecycle"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"><span class="flow">from</span> <span class="var">typing</span> <span class="flow">import</span> <span class="type">Optional</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-class">class</span> <span class="type">DatabaseConnectionPool</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Thread-safe Singleton using __new__ override.&quot;&quot;&quot;</span></span>
+<span class="line-text">    <span class="var">_instance</span><span class="punct">:</span> <span class="type">Optional</span><span class="punct">[</span><span class="str">&quot;DatabaseConnectionPool&quot;</span><span class="punct">]</span> <span class="punct">=</span> <span class="type">None</span></span>
+<span class="line-text">    <span class="var">_lock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Lock</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__new__</span><span class="punct">(</span><span class="var">cls</span><span class="punct">,</span> <span class="punct">*</span><span class="var">args</span><span class="punct">,</span> <span class="punct">**</span><span class="var">kwargs</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="str">&quot;DatabaseConnectionPool&quot;</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="var">cls</span><span class="punct">.</span><span class="var">_instance</span> <span class="flow">is</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">with</span> <span class="var">cls</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">                <span class="comment"># Double-checked locking</span></span>
+<span class="line-text">                <span class="flow">if</span> <span class="var">cls</span><span class="punct">.</span><span class="var">_instance</span> <span class="flow">is</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">                    <span class="var">cls</span><span class="punct">.</span><span class="var">_instance</span> <span class="punct">=</span> <span class="fn">super</span><span class="punct">(</span><span class="punct">)</span><span class="punct">.</span><span class="fn">__new__</span><span class="punct">(</span><span class="var">cls</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="var">cls</span><span class="punct">.</span><span class="var">_instance</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">poolSize</span><span class="punct">:</span> <span class="type">int</span> <span class="punct">=</span> <span class="num">10</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># Protect against re-initialization on subsequent calls</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="flow">not</span> <span class="fn">hasattr</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="str">&quot;_initialized&quot;</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="param">self</span><span class="punct">.</span><span class="var">poolSize</span> <span class="punct">=</span> <span class="var">poolSize</span></span>
+<span class="line-text">            <span class="param">self</span><span class="punct">.</span><span class="var">_initialized</span> <span class="punct">=</span> <span class="type">True</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">poolA</span> <span class="punct">=</span> <span class="type">DatabaseConnectionPool</span><span class="punct">(</span><span class="num">10</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">poolB</span> <span class="punct">=</span> <span class="type">DatabaseConnectionPool</span><span class="punct">(</span><span class="num">20</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;poolA is poolB? {poolA is poolB}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Shared pool size: {poolA.poolSize}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>poolA is poolB? True</div>
+            <div>Shared pool size: 10</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-repr-str">
+          <div class="w3-topic-header">
+            <h3>3. String Representation: __repr__ vs __str__</h3>
+            <span class="w3-step-badge">Representation Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __repr__(self) -&gt; str  |  def __str__(self) -&gt; str</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>__repr__(self):</strong> Unambiguous, developer-facing representation. Rule of thumb: If possible, <code>eval(repr(obj)) == obj</code>. Used in debugging, logs, and container displays <code>[obj]</code>.</p>
+            <p><strong>__str__(self):</strong> Readable, user-facing representation. Called by <code>print(obj)</code> and <code>str(obj)</code>. If <code>__str__</code> is absent, Python automatically falls back to <code>__repr__</code>.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-repr-str">Copy 3. String Representation: __repr__ vs __str__</button>
+            <pre class="code-block" id="code-dunder-repr-str"><code><span class="line-text"><span class="kw-class">class</span> <span class="type">UserAccount</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">userId</span><span class="punct">:</span> <span class="type">int</span><span class="punct">,</span> <span class="var">username</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">userId</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">username</span> <span class="punct">=</span> <span class="var">userId</span><span class="punct">,</span> <span class="var">username</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__repr__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">str</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># Developer representation: reproducible syntax</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="str">f&quot;UserAccount(userId={self.userId}, username={self.username!r})&quot;</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__str__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">str</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># User-friendly representation</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="str">f&quot;User #{self.userId} ({self.username})&quot;</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">user</span> <span class="punct">=</span> <span class="type">UserAccount</span><span class="punct">(</span><span class="num">42</span><span class="punct">,</span> <span class="str">&quot;ganesan&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;str() output:  {str(user)}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;repr() output: {repr(user)}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;List displays repr: {[user]}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>str() output:  User #42 (ganesan)</div>
+            <div>repr() output: UserAccount(userId=42, username=&#x27;ganesan&#x27;)</div>
+            <div>List displays repr: [UserAccount(userId=42, username=&#x27;ganesan&#x27;)]</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-equality-hash">
+          <div class="w3-topic-header">
+            <h3>4. Value Equality &amp; Hashing: __eq__ and __hash__</h3>
+            <span class="w3-step-badge">Hashable Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __eq__(self, other) -&gt; bool  |  def __hash__(self) -&gt; int</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>The Trap:</strong> If you define <code>__eq__</code>, Python automatically sets <code>__hash__ = None</code>, making the object unhashable by default!</p>
+            <p><strong>Contract Rule:</strong> If two objects are equal (<code>a == b</code>), their hashes MUST be identical: <code>hash(a) == hash(b)</code>.</p>
+            <p><strong>Immutability Requirement:</strong> Only immutable attributes should be used in <code>__hash__</code>. If attributes change while inside a <code>set</code> or <code>dict</code>, the object can never be found!</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-equality-hash">Copy 4. Value Equality &amp; Hashing: __eq__ and __hash__</button>
+            <pre class="code-block" id="code-dunder-equality-hash"><code><span class="line-text"><span class="kw-class">class</span> <span class="type">Point</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">x</span><span class="punct">:</span> <span class="type">int</span><span class="punct">,</span> <span class="var">y</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_x</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">_y</span> <span class="punct">=</span> <span class="var">x</span><span class="punct">,</span> <span class="var">y</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="punct">@</span><span class="decorator">property</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">x</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span> <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">_x</span></span>
+<span class="line-text">    <span class="punct">@</span><span class="decorator">property</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">y</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span> <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">_y</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__eq__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">other</span><span class="punct">:</span> <span class="var">object</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">bool</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="flow">not</span> <span class="fn">isinstance</span><span class="punct">(</span><span class="var">other</span><span class="punct">,</span> <span class="type">Point</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="type">NotImplemented</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="punct">(</span><span class="param">self</span><span class="punct">.</span><span class="var">_x</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">_y</span><span class="punct">)</span> <span class="punct">==</span> <span class="punct">(</span><span class="var">other</span><span class="punct">.</span><span class="var">_x</span><span class="punct">,</span> <span class="var">other</span><span class="punct">.</span><span class="var">_y</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__hash__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># Hash must be combined from immutable properties</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="fn">hash</span><span class="punct">(</span><span class="punct">(</span><span class="param">self</span><span class="punct">.</span><span class="var">_x</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">_y</span><span class="punct">)</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">p1</span><span class="punct">,</span> <span class="var">p2</span> <span class="punct">=</span> <span class="type">Point</span><span class="punct">(</span><span class="num">3</span><span class="punct">,</span> <span class="num">4</span><span class="punct">)</span><span class="punct">,</span> <span class="type">Point</span><span class="punct">(</span><span class="num">3</span><span class="punct">,</span> <span class="num">4</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;p1 == p2? {p1 == p2}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">pointsSet</span> <span class="punct">=</span> <span class="punct">{</span><span class="var">p1</span><span class="punct">,</span> <span class="var">p2</span><span class="punct">}</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Set size (deduplicated via hash): {len(pointsSet)}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>p1 == p2? True</div>
+            <div>Set size (deduplicated via hash): 1</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-comparison">
+          <div class="w3-topic-header">
+            <h3>5. Rich Comparison &amp; Ordering: __lt__ and @total_ordering</h3>
+            <span class="w3-step-badge">Comparison Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">@functools.total_ordering  # Defines __eq__ + __lt__ -&gt; creates all 6 operators!</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>Sorting & Priority Queues:</strong> Python's <code>sorted()</code>, <code>list.sort()</code>, and <code>heapq</code> only require <code>__lt__</code> (less than).</p>
+            <p><strong>@total_ordering:</strong> Implementing all 6 comparison methods (<code>__lt__</code>, <code>__le__</code>, <code>__gt__</code>, <code>__ge__</code>, <code>__eq__</code>, <code>__ne__</code>) manually is error-prone. Decorating with <code>@functools.total_ordering</code> synthesizes the rest automatically!</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-comparison">Copy 5. Rich Comparison &amp; Ordering: __lt__ and @total_ordering</button>
+            <pre class="code-block" id="code-dunder-comparison"><code><span class="line-text"><span class="flow">import</span> <span class="var">functools</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="punct">@</span><span class="decorator">functools</span><span class="punct">.</span><span class="var">total_ordering</span></span>
+<span class="line-text"><span class="kw-class">class</span> <span class="type">TaskItem</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">priority</span><span class="punct">:</span> <span class="type">int</span><span class="punct">,</span> <span class="var">name</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">priority</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">name</span> <span class="punct">=</span> <span class="var">priority</span><span class="punct">,</span> <span class="var">name</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__eq__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">other</span><span class="punct">:</span> <span class="var">object</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">bool</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="flow">not</span> <span class="fn">isinstance</span><span class="punct">(</span><span class="var">other</span><span class="punct">,</span> <span class="type">TaskItem</span><span class="punct">)</span><span class="punct">:</span> <span class="flow">return</span> <span class="type">NotImplemented</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">priority</span> <span class="punct">==</span> <span class="var">other</span><span class="punct">.</span><span class="var">priority</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__lt__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">other</span><span class="punct">:</span> <span class="str">&quot;TaskItem&quot;</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">bool</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="flow">not</span> <span class="fn">isinstance</span><span class="punct">(</span><span class="var">other</span><span class="punct">,</span> <span class="type">TaskItem</span><span class="punct">)</span><span class="punct">:</span> <span class="flow">return</span> <span class="type">NotImplemented</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">priority</span> <span class="punct">&lt;</span> <span class="var">other</span><span class="punct">.</span><span class="var">priority</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">t1</span> <span class="punct">=</span> <span class="type">TaskItem</span><span class="punct">(</span><span class="num">10</span><span class="punct">,</span> <span class="str">&quot;Low Priority&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">t2</span> <span class="punct">=</span> <span class="type">TaskItem</span><span class="punct">(</span><span class="num">90</span><span class="punct">,</span> <span class="str">&quot;Critical Bug&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;t1 &lt; t2? {t1 &lt; t2}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;t1 &lt;= t2 (synthesized)? {t1 &lt;= t2}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;t1 &gt; t2 (synthesized)? {t1 &gt; t2}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>t1 &lt; t2? True</div>
+            <div>t1 &lt;= t2 (synthesized)? True</div>
+            <div>t1 &gt; t2 (synthesized)? False</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-containers">
+          <div class="w3-topic-header">
+            <h3>6. Container &amp; Mapping Protocol: __len__, __getitem__, __setitem__</h3>
+            <span class="w3-step-badge">Container Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __getitem__(self, key)  |  def __setitem__(self, key, val)  |  def __contains__(self, item)</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>Subscript Access:</strong> Implementing these methods allows instances of your class to act exactly like standard Python dictionaries or lists with <code>obj[key]</code> syntax.</p>
+            <p><strong>Key Methods:</strong></p>
+            <p>• <code>__len__(self) -> int</code>: Evaluates <code>len(obj)</code> and default truthiness <code>bool(obj)</code>.</p>
+            <p>• <code>__getitem__(self, key) -> Any</code>: Handles <code>val = obj[key]</code> and slices <code>obj[1:3]</code>.</p>
+            <p>• <code>__setitem__(self, key, val) -> None</code>: Handles <code>obj[key] = val</code>.</p>
+            <p>• <code>__delitem__(self, key) -> None</code>: Handles <code>del obj[key]</code>.</p>
+            <p>• <code>__contains__(self, item) -> bool</code>: Handles <code>item in obj</code> ($O(1)$ membership test).</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-containers">Copy 6. Container &amp; Mapping Protocol: __len__, __getitem__, __setitem__</button>
+            <pre class="code-block" id="code-dunder-containers"><code><span class="line-text"><span class="flow">from</span> <span class="var">typing</span> <span class="flow">import</span> <span class="type">Dict</span><span class="punct">,</span> <span class="type">Any</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-class">class</span> <span class="type">ConfigStore</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Dictionary-like container with automatic key lowercasing.&quot;&quot;&quot;</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">:</span> <span class="type">Dict</span><span class="punct">[</span><span class="type">str</span><span class="punct">,</span> <span class="type">Any</span><span class="punct">]</span> <span class="punct">=</span> <span class="punct">{</span><span class="punct">}</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__len__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="fn">len</span><span class="punct">(</span><span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__getitem__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">Any</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">[</span><span class="var">key</span><span class="punct">.</span><span class="fn">lower</span><span class="punct">(</span><span class="punct">)</span><span class="punct">]</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__setitem__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">,</span> <span class="var">value</span><span class="punct">:</span> <span class="type">Any</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_data</span><span class="punct">[</span><span class="var">key</span><span class="punct">.</span><span class="fn">lower</span><span class="punct">(</span><span class="punct">)</span><span class="punct">]</span> <span class="punct">=</span> <span class="var">value</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__contains__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">bool</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="var">key</span><span class="punct">.</span><span class="fn">lower</span><span class="punct">(</span><span class="punct">)</span> <span class="flow">in</span> <span class="param">self</span><span class="punct">.</span><span class="var">_data</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">cfg</span> <span class="punct">=</span> <span class="type">ConfigStore</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">cfg</span><span class="punct">[</span><span class="str">&quot;API_TIMEOUT&quot;</span><span class="punct">]</span> <span class="punct">=</span> <span class="num">30</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Fetched via lowercase: {cfg[&#x27;api_timeout&#x27;]}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Contains &#x27;api_timeout&#x27;? {&#x27;api_timeout&#x27; in cfg}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Length of store: {len(cfg)}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Fetched via lowercase: 30</div>
+            <div>Contains &#x27;api_timeout&#x27;? True</div>
+            <div>Length of store: 1</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-iteration">
+          <div class="w3-topic-header">
+            <h3>7. Iteration Protocol: __iter__ and __next__</h3>
+            <span class="w3-step-badge">Iteration Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __iter__(self) -&gt; Iterator  |  def __next__(self) -&gt; Item</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>How 'for' Loops Work:</strong> When executing <code>for x in obj:</code>, Python first calls <code>it = iter(obj)</code> (which calls <code>obj.__iter__()</code>). It then repeatedly calls <code>next(it)</code> (which calls <code>it.__next__()</code>) until a <code>StopIteration</code> exception is raised.</p>
+            <p><strong>Generator Shortcut:</strong> You can simply make <code>__iter__()</code> a generator using <code>yield</code>, eliminating the need to write a separate <code>__next__</code> class!</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-iteration">Copy 7. Iteration Protocol: __iter__ and __next__</button>
+            <pre class="code-block" id="code-dunder-iteration"><code><span class="line-text"><span class="kw-class">class</span> <span class="type">Countdown</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">start</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">start</span> <span class="punct">=</span> <span class="var">start</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__iter__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># Generator protocol makes iteration effortless</span></span>
+<span class="line-text">        <span class="var">current</span> <span class="punct">=</span> <span class="param">self</span><span class="punct">.</span><span class="var">start</span></span>
+<span class="line-text">        <span class="flow">while</span> <span class="var">current</span> <span class="punct">&gt;</span> <span class="num">0</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">yield</span> <span class="var">current</span></span>
+<span class="line-text">            <span class="var">current</span> <span class="punct">-=</span> <span class="num">1</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">&quot;Countdown output:&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="flow">for</span> <span class="var">count</span> <span class="flow">in</span> <span class="type">Countdown</span><span class="punct">(</span><span class="num">3</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;  T-minus {count}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Countdown output:</div>
+            <div>  T-minus 3</div>
+            <div>  T-minus 2</div>
+            <div>  T-minus 1</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-callable">
+          <div class="w3-topic-header">
+            <h3>8. Callable Objects: __call__</h3>
+            <span class="w3-step-badge">Callable Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __call__(self, *args, **kwargs) -&gt; Any  # Makes instance callable like a function!</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>What is it?</strong> Defining <code>__call__</code> allows an instance of a class to be invoked directly using parentheses: <code>obj(*args)</code>.</p>
+            <p><strong>Use Cases in LLD:</strong> Stateful decorators, validation middleware, Strategy Pattern policies, and function-like rate limiters.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-callable">Copy 8. Callable Objects: __call__</button>
+            <pre class="code-block" id="code-dunder-callable"><code><span class="line-text"><span class="kw-class">class</span> <span class="type">ExecutionTimer</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Stateful callable decorator tracking total invocations.&quot;&quot;&quot;</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">callCount</span> <span class="punct">=</span> <span class="num">0</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__call__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">multiplier</span><span class="punct">:</span> <span class="type">int</span><span class="punct">,</span> <span class="var">value</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">callCount</span> <span class="punct">+=</span> <span class="num">1</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="var">multiplier</span> <span class="punct">*</span> <span class="var">value</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">calc</span> <span class="punct">=</span> <span class="type">ExecutionTimer</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Result 1: {calc(10, 5)}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Result 2: {calc(3, 7)}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Total calls tracked: {calc.callCount}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Result 1: 50</div>
+            <div>Result 2: 21</div>
+            <div>Total calls tracked: 2</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-getattr">
+          <div class="w3-topic-header">
+            <h3>9. Dynamic Proxy &amp; Attribute Access: __getattr__ vs __getattribute__</h3>
+            <span class="w3-step-badge">Proxy Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">def __getattr__(self, name: str)  # Fallback for missing attributes</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>__getattr__(self, name):</strong> Called ONLY when <code>name</code> is NOT found in the object's dictionary or class hierarchy. The ultimate tool for the <strong>Proxy Pattern</strong>, dynamic RPC clients, and lazy-loading attributes.</p>
+            <p><strong>__getattribute__(self, name):</strong> Intercepts EVERY attribute lookup (even if it exists). Must use <code>super().__getattribute__(name)</code> to avoid infinite recursion loops!</p>
+            <p><strong>__setattr__(self, name, val):</strong> Intercepts all attribute assignments. Must use <code>super().__setattr__(name, val)</code>.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-getattr">Copy 9. Dynamic Proxy &amp; Attribute Access: __getattr__ vs __getattribute__</button>
+            <pre class="code-block" id="code-dunder-getattr"><code><span class="line-text"><span class="kw-class">class</span> <span class="type">DynamicServiceProxy</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Proxy pattern forwarding unknown method calls to an inner service.&quot;&quot;&quot;</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">targetService</span><span class="punct">:</span> <span class="var">object</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># Use super to avoid triggering __setattr__ infinite recursion</span></span>
+<span class="line-text">        <span class="fn">super</span><span class="punct">(</span><span class="punct">)</span><span class="punct">.</span><span class="fn">__setattr__</span><span class="punct">(</span><span class="str">&quot;_target&quot;</span><span class="punct">,</span> <span class="var">targetService</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__getattr__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">methodName</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="comment"># Fallback hook for any attribute not defined locally</span></span>
+<span class="line-text">        <span class="var">targetAttr</span> <span class="punct">=</span> <span class="fn">getattr</span><span class="punct">(</span><span class="param">self</span><span class="punct">.</span><span class="var">_target</span><span class="punct">,</span> <span class="var">methodName</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="flow">if</span> <span class="fn">callable</span><span class="punct">(</span><span class="var">targetAttr</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="kw-def">def</span> <span class="fn">loggingWrapper</span><span class="punct">(</span><span class="punct">*</span><span class="var">args</span><span class="punct">,</span> <span class="punct">**</span><span class="var">kwargs</span><span class="punct">)</span><span class="punct">:</span></span>
+<span class="line-text">                <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[Proxy Audit] Calling method: {methodName}&quot;</span><span class="punct">)</span></span>
+<span class="line-text">                <span class="flow">return</span> <span class="fn">targetAttr</span><span class="punct">(</span><span class="punct">*</span><span class="var">args</span><span class="punct">,</span> <span class="punct">**</span><span class="var">kwargs</span><span class="punct">)</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="var">loggingWrapper</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="var">targetAttr</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-class">class</span> <span class="type">PaymentService</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">processCard</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">amount</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">str</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">return</span> <span class="str">f&quot;Charged ${amount}&quot;</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">proxy</span> <span class="punct">=</span> <span class="type">DynamicServiceProxy</span><span class="punct">(</span><span class="type">PaymentService</span><span class="punct">(</span><span class="punct">)</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="var">proxy</span><span class="punct">.</span><span class="fn">processCard</span><span class="punct">(</span><span class="num">150</span><span class="punct">)</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>[Proxy Audit] Calling method: processCard</div>
+            <div>Charged $150</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-slots">
+          <div class="w3-topic-header">
+            <h3>10. Memory Optimization &amp; __slots__</h3>
+            <span class="w3-step-badge">Optimization Protocol</span>
+          </div>
+          <div class="syntax-banner">
+            <span class="syntax-banner-tag">SYNTAX</span>
+            <code class="syntax-banner-code">__slots__ = (&#x27;id&#x27;, &#x27;name&#x27;, &#x27;balance&#x27;)  # Replaces dynamic __dict__ with C array!</code>
+          </div>
+          <div class="step-explainer">
+            <p><strong>How standard Python objects work:</strong> By default, every Python instance has an internal dictionary (<code>self.__dict__</code>) storing its attributes, which adds significant memory overhead.</p>
+            <p><strong>__slots__ Benefits:</strong></p>
+            <p>• <strong>50–70% Memory Reduction:</strong> Replaces <code>__dict__</code> with a fixed-size compact C struct array.</p>
+            <p>• <strong>Prevents Typos:</strong> Forbids creating arbitrary new attributes at runtime (e.g. assigning <code>obj.usr_id = 5</code> raises <code>AttributeError</code>).</p>
+            <p>• <strong>High Throughput:</strong> Essential when caching millions of entities in Machine Coding.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-slots">Copy 10. Memory Optimization &amp; __slots__</button>
+            <pre class="code-block" id="code-dunder-slots"><code><span class="line-text"><span class="kw-class">class</span> <span class="type">StockTick</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="comment"># Restrict instance attributes to compact memory slots</span></span>
+<span class="line-text">    <span class="var">__slots__</span> <span class="punct">=</span> <span class="punct">(</span><span class="str">&quot;symbol&quot;</span><span class="punct">,</span> <span class="str">&quot;price&quot;</span><span class="punct">,</span> <span class="str">&quot;volume&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">symbol</span><span class="punct">:</span> <span class="type">str</span><span class="punct">,</span> <span class="var">price</span><span class="punct">:</span> <span class="type">float</span><span class="punct">,</span> <span class="var">volume</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">symbol</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">price</span><span class="punct">,</span> <span class="param">self</span><span class="punct">.</span><span class="var">volume</span> <span class="punct">=</span> <span class="var">symbol</span><span class="punct">,</span> <span class="var">price</span><span class="punct">,</span> <span class="var">volume</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="var">tick</span> <span class="punct">=</span> <span class="type">StockTick</span><span class="punct">(</span><span class="str">&quot;AAPL&quot;</span><span class="punct">,</span> <span class="num">185.50</span><span class="punct">,</span> <span class="num">1000</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Symbol: {tick.symbol}, Price: ${tick.price}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="flow">try</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="comment"># Attempting to assign an unslotted attribute raises AttributeError!</span></span>
+<span class="line-text">    <span class="var">tick</span><span class="punct">.</span><span class="var">timestamp</span> <span class="punct">=</span> <span class="num">1712000000</span>  <span class="comment"># type: ignore</span></span>
+<span class="line-text"><span class="flow">except</span> <span class="type">AttributeError</span> <span class="flow">as</span> <span class="var">err</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;Caught __slots__ protection: {err}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>Symbol: AAPL, Price: $185.5</div>
+            <div>Caught __slots__ protection: &#x27;StockTick&#x27; object has no attribute &#x27;timestamp&#x27;</div>
+          </div>
+        </article>
+
+        <article class="w3-topic-card" id="dunder-capstone">
+          <div class="w3-topic-header">
+            <h3>11. Machine Coding Capstone: ThreadSafeObservableDict</h3>
+            <span class="w3-step-badge">Production Architecture</span>
+          </div>
+          <div class="step-explainer">
+            <p><strong>Architecture:</strong> A production-grade observable dictionary implementing the Container Protocol (<code>__getitem__</code>, <code>__setitem__</code>, <code>__delitem__</code>, <code>__len__</code>, <code>__contains__</code>, <code>__iter__</code>, <code>__repr__</code>) with thread-safe lock protection and mutation change listeners.</p>
+          </div>
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-dunder-capstone">Copy ThreadSafeObservableDict Capstone</button>
+            <pre class="code-block" id="code-dunder-capstone"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
+<span class="line-text"><span class="flow">from</span> <span class="var">typing</span> <span class="flow">import</span> <span class="type">Any</span><span class="punct">,</span> <span class="type">Dict</span><span class="punct">,</span> <span class="type">Iterator</span><span class="punct">,</span> <span class="type">Callable</span><span class="punct">,</span> <span class="type">List</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="kw-class">class</span> <span class="type">ThreadSafeObservableDict</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="docstr">&quot;&quot;&quot;Thread-safe mapping with full dunder container protocol and change observers.&quot;&quot;&quot;</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__init__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">RLock</span><span class="punct">(</span><span class="punct">)</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_store</span><span class="punct">:</span> <span class="type">Dict</span><span class="punct">[</span><span class="type">str</span><span class="punct">,</span> <span class="type">Any</span><span class="punct">]</span> <span class="punct">=</span> <span class="punct">{</span><span class="punct">}</span></span>
+<span class="line-text">        <span class="param">self</span><span class="punct">.</span><span class="var">_listeners</span><span class="punct">:</span> <span class="type">List</span><span class="punct">[</span><span class="type">Callable</span><span class="punct">[</span><span class="punct">[</span><span class="type">str</span><span class="punct">,</span> <span class="type">Any</span><span class="punct">]</span><span class="punct">,</span> <span class="type">None</span><span class="punct">]</span><span class="punct">]</span> <span class="punct">=</span> <span class="punct">[</span><span class="punct">]</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">addObserver</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">listener</span><span class="punct">:</span> <span class="type">Callable</span><span class="punct">[</span><span class="punct">[</span><span class="type">str</span><span class="punct">,</span> <span class="type">Any</span><span class="punct">]</span><span class="punct">,</span> <span class="type">None</span><span class="punct">]</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="param">self</span><span class="punct">.</span><span class="var">_listeners</span><span class="punct">.</span><span class="fn">append</span><span class="punct">(</span><span class="var">listener</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 1. Container Protocol: len(dict)</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__len__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="fn">len</span><span class="punct">(</span><span class="param">self</span><span class="punct">.</span><span class="var">_store</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 2. Container Protocol: dict[key]</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__getitem__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">Any</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="param">self</span><span class="punct">.</span><span class="var">_store</span><span class="punct">[</span><span class="var">key</span><span class="punct">]</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 3. Container Protocol: dict[key] = value</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__setitem__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">,</span> <span class="var">value</span><span class="punct">:</span> <span class="type">Any</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="param">self</span><span class="punct">.</span><span class="var">_store</span><span class="punct">[</span><span class="var">key</span><span class="punct">]</span> <span class="punct">=</span> <span class="var">value</span></span>
+<span class="line-text">            <span class="flow">for</span> <span class="var">listener</span> <span class="flow">in</span> <span class="param">self</span><span class="punct">.</span><span class="var">_listeners</span><span class="punct">:</span></span>
+<span class="line-text">                <span class="fn">listener</span><span class="punct">(</span><span class="var">key</span><span class="punct">,</span> <span class="var">value</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 4. Container Protocol: del dict[key]</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__delitem__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="type">str</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">None</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="var">del</span> <span class="param">self</span><span class="punct">.</span><span class="var">_store</span><span class="punct">[</span><span class="var">key</span><span class="punct">]</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 5. Membership: key in dict</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__contains__</span><span class="punct">(</span><span class="param">self</span><span class="punct">,</span> <span class="var">key</span><span class="punct">:</span> <span class="var">object</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">bool</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="var">key</span> <span class="flow">in</span> <span class="param">self</span><span class="punct">.</span><span class="var">_store</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 6. Iteration: for key in dict:</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__iter__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">Iterator</span><span class="punct">[</span><span class="type">str</span><span class="punct">]</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="comment"># Yield snapshot of keys to allow iteration during concurrent mutation</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="fn">iter</span><span class="punct">(</span><span class="fn">list</span><span class="punct">(</span><span class="param">self</span><span class="punct">.</span><span class="var">_store</span><span class="punct">.</span><span class="fn">keys</span><span class="punct">(</span><span class="punct">)</span><span class="punct">)</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text">    <span class="comment"># 7. Representation: repr(dict)</span></span>
+<span class="line-text">    <span class="kw-def">def</span> <span class="fn">__repr__</span><span class="punct">(</span><span class="param">self</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">str</span><span class="punct">:</span></span>
+<span class="line-text">        <span class="flow">with</span> <span class="param">self</span><span class="punct">.</span><span class="var">_lock</span><span class="punct">:</span></span>
+<span class="line-text">            <span class="flow">return</span> <span class="str">f&quot;ThreadSafeObservableDict({self._store!r})&quot;</span></span></code></pre>
+          </div>
+        </article>
+      </section>
+
+      <!-- PAGE: testing-blueprint -->
       <section class="page-view" id="testing-blueprint" data-topic-title="Testing &amp; Mocking" data-page-title="Overview &amp; Blueprint" aria-hidden="true">
         <header class="topic-heading">
           <span class="level-tag">Category 9 • Testing Blueprint</span>
