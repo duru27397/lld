@@ -36,7 +36,7 @@ Built with a 3-level hierarchical navigation tree (Category $\to$ Subcategory $\
 
 ---
 
-## Comprehensive 8-Category Curriculum
+## Comprehensive 9-Category Curriculum
 
 ### 1. 🧱 OOP Fundamentals & Class Relationships
 - **Core Pillars**: Classes & Objects, Encapsulation with `@property`, Abstraction with `abc.ABC`, and Polymorphic method dispatch.
@@ -93,8 +93,13 @@ Comprehensive coverage of all core synchronization primitives, coordination patt
 - **Thread Synchronization**: Preemptive bytecode execution, memory visibility, and rendezvous coordination with `threading.Barrier`.
 - **Deadlocks**: The 4 Coffman conditions (Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait), deadlock reproduction, Hierarchical Lock Ordering, timeouts, and `contextlib.ExitStack`.
 - **Race Conditions**: Time-of-Check to Time-of-Use (TOCTOU), Read-Modify-Write hazards, CPython bytecode disassembly (`LOAD`, `STORE` preemption windows), and atomic critical sections.
-- **Thread Pool Pattern**: `concurrent.futures.ThreadPoolExecutor` for asynchronous batch task submission and `as_completed` future resolution.
-- **Reader-Writer Lock**: Writer-preferring RWLock ensuring high read concurrency without writer starvation.
+- **ThreadPoolExecutor (max_workers=16) & Futures**: Comprehensive mastery of `concurrent.futures.ThreadPoolExecutor(max_workers=16)`:
+  - Context Manager lifecycle: `with ... as executor:` (`__enter__` returns executor, `__exit__` invokes `shutdown(wait=True, cancel_futures=False)`).
+  - Executor methods: `submit(fn, *args, **kwargs)`, `map(fn, *iterables, timeout=...)` with strict input order preservation, and `shutdown(wait=True, cancel_futures=True)`.
+  - Future methods: `result(timeout=...)` (with exception re-raising), `exception(timeout=...)`, `done()`, `running()`, `cancel()`, `cancelled()`, and `add_done_callback(fn)`.
+  - Coordination utilities: `concurrent.futures.as_completed()` (fastest-first out-of-order streaming) and `concurrent.futures.wait()` with `FIRST_COMPLETED`, `FIRST_EXCEPTION`, and `ALL_COMPLETED`.
+  - Worker configuration: `max_workers=16`, `thread_name_prefix`, and per-worker startup `initializer` / `initargs`.
+- **Reader-Writer Lock & Thread-Safe Cache**: Writer-preferring RWLock ensuring high read concurrency without writer starvation, paired with dual context managers (`readLock()` / `writeLock()`) and production `ThreadSafeCache`.
 
 ### 7. 💻 Real-World Machine Coding Systems (All 33 Practical Systems)
 Complete end-to-end Python 3 implementations with system requirements, local UML diagrams, key classes rationale, and runnable multi-file code:
@@ -136,15 +141,21 @@ Complete end-to-end Python 3 implementations with system requirements, local UML
   - **Social Networking Service (Facebook)**: Bidirectional friendship graph, post & comment tree, notifications.
   - **Music Streaming Service (Spotify)**: Audio stream buffer, playlist iterator, recommendation engine.
 
-### 8. 🧪 Testing, Mocking & Modern Python Idioms
+### 8. 🐍 Python 3 Core Mechanics & Error Handling
+Dedicated, deep-dive section covering Python's core language mechanics, exception handling constructs, and the context management protocol:
+- **try-except-else-finally Execution Construct**: The full 4-stage error lifecycle. Why `else` is vital for separating happy-path logic from guarded operations; guaranteed `finally` cleanup across early returns and unhandled exceptions.
+- **Raising, Reraising & Exception Chaining**: `raise` for new errors, bare `raise` for preserving active tracebacks, `raise NewError from err` (PEP 3134) for chaining root cause diagnostics to `__cause__`, and `from None` for context suppression.
+- **Domain Exception Hierarchies**: Base `ApplicationError` carrying structured error codes, HTTP status mappings, and JSON-serializable payloads with specialized leaf errors (`EntityNotFoundError`, `InsufficientStockError`).
+- **The `with` Block Protocol (PEP 343)**: RAII resource safety. Step-by-step runtime mechanics: evaluating context expression, calling `__enter__()`, binding to `as target`, and guaranteed invocation of `__exit__(exc_type, exc_val, exc_tb)`.
+- **`__enter__` and `__exit__` Deep Dive**: The 3 exit arguments, automatic state snapshots, ACID transactional rollback scopes, and exception suppression (returning `True` to swallow errors vs `False` to propagate).
+- **Modern `contextlib` Utilities**: Generator-based `@contextlib.contextmanager` with `yield`, `contextlib.suppress(*exceptions)` for clean exception silencing, and `contextlib.ExitStack` for dynamic multi-resource coordination.
+
+### 9. 🧪 Testing, Mocking & Verification
 - **Unit Testing & Assertion Suite**: `unittest.TestCase` assertions (`assertEqual`, `assertTrue`/`assertFalse`, `assertRaises`, `assertIn`/`assertNotIn`, `assertAlmostEqual`, `assertCountEqual`).
 - **Mocking & Spying**: `unittest.mock.Mock(spec=...)`, `MagicMock` (dunder protocols `__len__`, `__iter__`, `__getitem__`), `return_value`, `side_effect` for simulating exceptions and sequential states, and call assertions (`assert_called_once_with`).
 - **Monkey Patching**: `@patch`, `@patch.object`, and `@patch.dict(os.environ, ...)` with automatic scoped teardown.
 - **Deterministic Time Mocking**: Freezing and advancing system clock with `patch('time.time')` for TTL caches and rate limiters without `time.sleep()`.
 - **Integration Test Driver & Main Method**: Custom test suites with `unittest.TestLoader`, multi-threaded concurrent integration tests, and programmatic `main()` CLI runners with proper status exit codes.
-- **Domain Exceptions & Chaining**: Base application exception hierarchies, preserving root cause stack traces with `raise ... from err`, and idiomatic `try-except-else-finally`.
-- **Class-Based Context Managers**: Reusable resource management and transactional state rollback scopes using `__enter__` and `__exit__`.
-- **Modern Contextlib Utilities**: Generator-based `@contextlib.contextmanager`, exception suppression with `contextlib.suppress`, and dynamic multi-lock management using `contextlib.ExitStack`.
 
 ---
 
