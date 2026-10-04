@@ -4549,7 +4549,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
         <header class="topic-heading">
           <span class="level-tag">Category 6 • Visual Master Overview • Concurrency Blueprint</span>
           <h1>Multi-Threading (MThreading) Master Blueprint &amp; Syntax Cheat Sheet</h1>
-          <p class="topic-summary">Understand threads, processes, and the GIL in Python 3. Learn every concurrency primitive, its real-world intuition, all useful functions and methods, and minimal runnable examples in one place.</p>
+          <p class="topic-summary">Understand threads, processes, and the GIL in Python 3. Learn every separate import, its real-world intuition, all useful functions and methods, and minimal runnable examples in one place.</p>
         </header>
 
         <article class="w3-topic-card" id="bp-intro">
@@ -4662,9 +4662,106 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
           </div>
         </article>
 
+        <article class="w3-topic-card" id="bp-imports">
+          <div class="w3-topic-header">
+            <h3>3. Every Separate Import in Concurrency &amp; All Its Useful Functions</h3>
+            <span class="w3-step-badge">Module Architecture</span>
+          </div>
+          <div class="step-explainer">
+            <p><strong>Why does Python have separate imports?</strong> Python separates concurrency tools into modular standard library packages according to architectural responsibility. Instead of one monolithic package, each separate module has a distinct role in the operating system and interpreter.</p>
+          </div>
+
+          <div class="concurrency-table-wrap">
+            <table class="concurrency-table">
+              <thead>
+                <tr>
+                  <th>Separate Import Syntax</th>
+                  <th>Module Role</th>
+                  <th>All Useful Functions &amp; Classes Provided</th>
+                  <th>Under-the-Hood Behavior</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>import threading</code></td>
+                  <td>Core OS Thread Primitives</td>
+                  <td><code>Thread</code>, <code>Lock</code>, <code>RLock</code>, <code>Condition</code>, <code>Semaphore</code>, <code>BoundedSemaphore</code>, <code>Event</code>, <code>Barrier</code>, <code>Timer</code>, <code>local</code>, <code>current_thread()</code>, <code>active_count()</code>, <code>enumerate()</code>, <code>main_thread()</code>, <code>get_ident()</code>, <code>get_native_id()</code>, <code>excepthook</code></td>
+                  <td>Interacts directly with OS kernel threads via POSIX pthreads on Linux/macOS or Win32 threads.</td>
+                </tr>
+                <tr>
+                  <td><code>import queue</code></td>
+                  <td>Thread-Safe Data Structures</td>
+                  <td><code>Queue</code> (FIFO), <code>LifoQueue</code> (LIFO stack), <code>PriorityQueue</code> (min-heap), <code>SimpleQueue</code> (fast C reentrant), <code>Empty</code>, <code>Full</code></td>
+                  <td>Encapsulates Python collections with internal <code>Lock</code> and <code>Condition</code> variables for automatic backpressure and blocking.</td>
+                </tr>
+                <tr>
+                  <td><code>import concurrent.futures</code></td>
+                  <td>High-Level Task Pools &amp; Futures</td>
+                  <td><code>ThreadPoolExecutor</code>, <code>ProcessPoolExecutor</code>, <code>Future</code>, <code>as_completed()</code>, <code>wait()</code>, <code>ALL_COMPLETED</code>, <code>FIRST_COMPLETED</code>, <code>FIRST_EXCEPTION</code>, <code>TimeoutError</code>, <code>CancelledError</code></td>
+                  <td>Worker pool abstraction (PEP 3148). Decouples task submission from execution; futures capture background return values and errors.</td>
+                </tr>
+                <tr>
+                  <td><code>import time</code></td>
+                  <td>Clocks &amp; Scheduler Delays</td>
+                  <td><code>sleep(secs)</code>, <code>perf_counter()</code>, <code>time()</code>, <code>monotonic()</code></td>
+                  <td><code>time.sleep()</code> explicitly yields the GIL to allow other threads to run. <code>perf_counter()</code> provides high-resolution deadline tracking.</td>
+                </tr>
+                <tr>
+                  <td><code>from contextlib import contextmanager</code></td>
+                  <td>RAII Context Decorators</td>
+                  <td><code>@contextmanager</code></td>
+                  <td>Converts generator functions into context managers. Enables building custom lock primitives with clean <code>with</code> block syntax.</td>
+                </tr>
+                <tr>
+                  <td><code>import dis</code></td>
+                  <td>Bytecode Disassembler</td>
+                  <td><code>dis.dis(code_or_func)</code></td>
+                  <td>Decompiles Python functions into raw virtual machine bytecode instructions to diagnose race condition hazards.</td>
+                </tr>
+                <tr>
+                  <td><code>import sys</code></td>
+                  <td>Interpreter Telemetry</td>
+                  <td><code>sys.getswitchinterval()</code>, <code>sys.setswitchinterval(0.005)</code></td>
+                  <td>Queries and tunes the CPython thread preemption quantum (defaults to 5 milliseconds).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mini-code-wrap">
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-imports">Copy Concurrency Imports Showcase</button>
+            <pre class="code-block" id="code-bp-imports"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span>            <span class="comment"># 1. Core OS primitives: Thread, Lock, RLock, Event, Barrier</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">queue</span>                <span class="comment"># 2. Thread-safe FIFO/LIFO queues with backpressure</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">concurrent</span><span class="punct">.</span><span class="var">futures</span>   <span class="comment"># 3. High-throughput worker pools and async Futures</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">time</span>                 <span class="comment"># 4. Precision clocks and time.sleep() (yields GIL)</span></span>
+<span class="line-text"><span class="flow">import</span> <span class="var">sys</span>                  <span class="comment"># 5. CPython switch interval telemetry (getswitchinterval)</span></span>
+<span class="line-text"><span class="flow">from</span> <span class="var">contextlib</span> <span class="flow">import</span> <span class="var">contextmanager</span>  <span class="comment"># 6. Build custom &#x27;with&#x27; block primitives</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[Import Demo] Active threads: {threading.active_count()} ({threading.current_thread().name})&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[Import Demo] Switch interval: {sys.getswitchinterval()}s (5ms)&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="comment"># Using queue</span></span>
+<span class="line-text"><span class="var">q</span> <span class="punct">=</span> <span class="var">queue</span><span class="punct">.</span><span class="type">Queue</span><span class="punct">(</span><span class="var">maxsize</span><span class="punct">=</span><span class="num">10</span><span class="punct">)</span></span>
+<span class="line-text"><span class="var">q</span><span class="punct">.</span><span class="fn">put</span><span class="punct">(</span><span class="str">&quot;Payload-1&quot;</span><span class="punct">)</span></span>
+<span class="line-text"><span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[Import Demo] Queue size: {q.qsize()}&quot;</span><span class="punct">)</span></span>
+<span class="line-text"></span>
+<span class="line-text"><span class="comment"># Using concurrent.futures</span></span>
+<span class="line-text"><span class="flow">with</span> <span class="var">concurrent</span><span class="punct">.</span><span class="var">futures</span><span class="punct">.</span><span class="type">ThreadPoolExecutor</span><span class="punct">(</span><span class="var">max_workers</span><span class="punct">=</span><span class="num">2</span><span class="punct">)</span> <span class="flow">as</span> <span class="var">executor</span><span class="punct">:</span></span>
+<span class="line-text">    <span class="var">fut</span> <span class="punct">=</span> <span class="var">executor</span><span class="punct">.</span><span class="fn">submit</span><span class="punct">(</span><span class="flow">lambda</span> <span class="var">x</span><span class="punct">:</span> <span class="var">x</span> <span class="punct">*</span> <span class="var">x</span><span class="punct">,</span> <span class="num">8</span><span class="punct">)</span></span>
+<span class="line-text">    <span class="fn">print</span><span class="punct">(</span><span class="str">f&quot;[Import Demo] ThreadPool returned square: {fut.result()}&quot;</span><span class="punct">)</span></span></code></pre>
+          </div>
+          <div class="code-output-box">
+            <div class="code-output-title">Console Output:</div>
+            <div>[Import Demo] Active threads: 1 (MainThread)</div>
+            <div>[Import Demo] Switch interval: 0.005s (5ms)</div>
+            <div>[Import Demo] Queue size: 1</div>
+            <div>[Import Demo] ThreadPool returned square: 64</div>
+          </div>
+        </article>
+
         <article class="w3-topic-card" id="bp-syntax-thread">
           <div class="w3-topic-header">
-            <h3>3. threading.Thread: Spawning &amp; Managing OS Threads</h3>
+            <h3>4. threading.Thread: Spawning &amp; Managing OS Threads</h3>
             <span class="w3-step-badge">Syntax Primitive 1</span>
           </div>
           <div class="syntax-banner">
@@ -4681,7 +4778,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>threading.current_thread().name</code>: Returns the name of the currently executing thread.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-thread">Copy 3. threading.Thread: Spawning &amp; Managing OS Threads</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-thread">Copy 4. threading.Thread: Spawning &amp; Managing OS Threads</button>
             <pre class="code-block" id="code-bp-syntax-thread"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
 <span class="line-text"></span>
@@ -4708,7 +4805,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-lock">
           <div class="w3-topic-header">
-            <h3>4. threading.Lock: Mutual Exclusion (Mutex)</h3>
+            <h3>5. threading.Lock: Mutual Exclusion (Mutex)</h3>
             <span class="w3-step-badge">Syntax Primitive 2</span>
           </div>
           <div class="syntax-banner">
@@ -4724,7 +4821,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>with lock:</code>: Recommended! Automatically acquires on enter and releases on exit.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-lock">Copy 4. threading.Lock: Mutual Exclusion (Mutex)</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-lock">Copy 5. threading.Lock: Mutual Exclusion (Mutex)</button>
             <pre class="code-block" id="code-bp-syntax-lock"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"></span>
 <span class="line-text"><span class="var">lock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Lock</span><span class="punct">(</span><span class="punct">)</span></span>
@@ -4748,7 +4845,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-rlock">
           <div class="w3-topic-header">
-            <h3>5. threading.RLock: Reentrant Mutex (No Self-Deadlocks)</h3>
+            <h3>6. threading.RLock: Reentrant Mutex (No Self-Deadlocks)</h3>
             <span class="w3-step-badge">Syntax Primitive 3</span>
           </div>
           <div class="syntax-banner">
@@ -4763,7 +4860,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>with rlock:</code>: Context manager safely tracking nested entry and exit.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-rlock">Copy 5. threading.RLock: Reentrant Mutex (No Self-Deadlocks)</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-rlock">Copy 6. threading.RLock: Reentrant Mutex (No Self-Deadlocks)</button>
             <pre class="code-block" id="code-bp-syntax-rlock"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"></span>
 <span class="line-text"><span class="var">rlock</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">RLock</span><span class="punct">(</span><span class="punct">)</span></span>
@@ -4788,7 +4885,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-condition">
           <div class="w3-topic-header">
-            <h3>6. threading.Condition: State Signaling &amp; Wait-Sets</h3>
+            <h3>7. threading.Condition: State Signaling &amp; Wait-Sets</h3>
             <span class="w3-step-badge">Syntax Primitive 4</span>
           </div>
           <div class="syntax-banner">
@@ -4805,7 +4902,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>with cond:</code>: Acquires underlying lock (mandatory before calling wait or notify!).</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-condition">Copy 6. threading.Condition: State Signaling &amp; Wait-Sets</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-condition">Copy 7. threading.Condition: State Signaling &amp; Wait-Sets</button>
             <pre class="code-block" id="code-bp-syntax-condition"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
 <span class="line-text"></span>
@@ -4838,7 +4935,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-semaphore">
           <div class="w3-topic-header">
-            <h3>7. threading.BoundedSemaphore: Resource Throttling</h3>
+            <h3>8. threading.BoundedSemaphore: Resource Throttling</h3>
             <span class="w3-step-badge">Syntax Primitive 5</span>
           </div>
           <div class="syntax-banner">
@@ -4853,7 +4950,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>with sem:</code>: Automatically acquires permit on enter and returns permit on exit.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-semaphore">Copy 7. threading.BoundedSemaphore: Resource Throttling</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-semaphore">Copy 8. threading.BoundedSemaphore: Resource Throttling</button>
             <pre class="code-block" id="code-bp-syntax-semaphore"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
 <span class="line-text"></span>
@@ -4883,7 +4980,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-event">
           <div class="w3-topic-header">
-            <h3>8. threading.Event: One-to-Many Broadcast Gate</h3>
+            <h3>9. threading.Event: One-to-Many Broadcast Gate</h3>
             <span class="w3-step-badge">Syntax Primitive 6</span>
           </div>
           <div class="syntax-banner">
@@ -4899,7 +4996,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>event.is_set() -> bool</code>: Returns current boolean state of the flag.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-event">Copy 8. threading.Event: One-to-Many Broadcast Gate</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-event">Copy 9. threading.Event: One-to-Many Broadcast Gate</button>
             <pre class="code-block" id="code-bp-syntax-event"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"><span class="flow">import</span> <span class="var">time</span></span>
 <span class="line-text"></span>
@@ -4928,7 +5025,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-barrier">
           <div class="w3-topic-header">
-            <h3>9. threading.Barrier: Multi-Party Cyclic Rendezvous</h3>
+            <h3>10. threading.Barrier: Multi-Party Cyclic Rendezvous</h3>
             <span class="w3-step-badge">Syntax Primitive 7</span>
           </div>
           <div class="syntax-banner">
@@ -4945,7 +5042,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>barrier.n_waiting</code>: Number of threads currently waiting.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-barrier">Copy 9. threading.Barrier: Multi-Party Cyclic Rendezvous</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-barrier">Copy 10. threading.Barrier: Multi-Party Cyclic Rendezvous</button>
             <pre class="code-block" id="code-bp-syntax-barrier"><code><span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"></span>
 <span class="line-text"><span class="var">barrier</span> <span class="punct">=</span> <span class="var">threading</span><span class="punct">.</span><span class="type">Barrier</span><span class="punct">(</span><span class="var">parties</span><span class="punct">=</span><span class="num">2</span><span class="punct">)</span></span>
@@ -4971,7 +5068,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-queue">
           <div class="w3-topic-header">
-            <h3>10. queue.Queue: Thread-Safe FIFO Pipeline</h3>
+            <h3>11. queue.Queue: Thread-Safe FIFO Pipeline</h3>
             <span class="w3-step-badge">Syntax Primitive 8</span>
           </div>
           <div class="syntax-banner">
@@ -4988,7 +5085,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>q.qsize() -> int</code>: Returns approximate size of the queue.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-queue">Copy 10. queue.Queue: Thread-Safe FIFO Pipeline</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-queue">Copy 11. queue.Queue: Thread-Safe FIFO Pipeline</button>
             <pre class="code-block" id="code-bp-syntax-queue"><code><span class="line-text"><span class="flow">import</span> <span class="var">queue</span></span>
 <span class="line-text"><span class="flow">import</span> <span class="var">threading</span></span>
 <span class="line-text"></span>
@@ -5021,7 +5118,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-threadpool">
           <div class="w3-topic-header">
-            <h3>11. ThreadPoolExecutor: Worker Pools &amp; Async Futures</h3>
+            <h3>12. ThreadPoolExecutor: Worker Pools &amp; Async Futures</h3>
             <span class="w3-step-badge">Syntax Primitive 9</span>
           </div>
           <div class="syntax-banner">
@@ -5042,7 +5139,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>wait(futures, return_when=...)</code>: Batch synchronization.</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-threadpool">Copy 11. ThreadPoolExecutor: Worker Pools &amp; Async Futures</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-threadpool">Copy 12. ThreadPoolExecutor: Worker Pools &amp; Async Futures</button>
             <pre class="code-block" id="code-bp-syntax-threadpool"><code><span class="line-text"><span class="flow">import</span> <span class="var">concurrent</span><span class="punct">.</span><span class="var">futures</span></span>
 <span class="line-text"></span>
 <span class="line-text"><span class="kw-def">def</span> <span class="fn">square</span><span class="punct">(</span><span class="var">n</span><span class="punct">:</span> <span class="type">int</span><span class="punct">)</span> <span class="punct">-&gt;</span> <span class="type">int</span><span class="punct">:</span></span>
@@ -5066,7 +5163,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
 
         <article class="w3-topic-card" id="bp-syntax-rwlock">
           <div class="w3-topic-header">
-            <h3>12. ReadWriteLock: Shared Readers / Exclusive Writers</h3>
+            <h3>13. ReadWriteLock: Shared Readers / Exclusive Writers</h3>
             <span class="w3-step-badge">Syntax Primitive 10</span>
           </div>
           <div class="syntax-banner">
@@ -5080,7 +5177,7 @@ YAGNI : You Aren&#x27;t Gonna Need It (Build for today&#x27;s requirements, not 
             <p>• <code>with rwLock.writeLock():</code>: Acquires exclusive write access (blocks all readers and writers).</p>
           </div>
           <div class="mini-code-wrap">
-            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-rwlock">Copy 12. ReadWriteLock: Shared Readers / Exclusive Writers</button>
+            <button class="copy-button mini-copy" type="button" data-code="code-bp-syntax-rwlock">Copy 13. ReadWriteLock: Shared Readers / Exclusive Writers</button>
             <pre class="code-block" id="code-bp-syntax-rwlock"><code><span class="line-text"><span class="comment"># Fast in-memory cache usage</span></span>
 <span class="line-text"><span class="var">cache</span> <span class="punct">=</span> <span class="punct">{</span><span class="str">&quot;config:version&quot;</span><span class="punct">:</span> <span class="str">&quot;2.1&quot;</span><span class="punct">}</span></span>
 <span class="line-text"></span>
