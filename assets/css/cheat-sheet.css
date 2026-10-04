@@ -2449,3 +2449,58 @@ h1 {
 }
 
 
+
+/* Slow-Paced Step-by-Step Syntax Banners & Visual Cards */
+.syntax-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(255, 161, 22, 0.07);
+  border: 1px solid rgba(255, 161, 22, 0.25);
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  margin: 0.25rem 0 0.65rem 0;
+}
+
+.syntax-banner-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--orange);
+  background: rgba(255, 161, 22, 0.18);
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.syntax-banner-code {
+  font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #eff1f6;
+  word-break: break-all;
+}
+
+.step-explainer {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.55;
+  margin: 0.35rem 0 0.65rem 0;
+}
+
+.step-explainer p {
+  margin: 0 0 0.45rem 0;
+}
+
+.step-explainer strong {
+  color: var(--orange);
+}
+
+.step-explainer code {
+  color: #a5d6ff;
+  background: #181818;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.83rem;
+}
